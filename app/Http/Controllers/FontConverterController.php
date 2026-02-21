@@ -22,12 +22,12 @@ class FontConverterController extends Controller
         
         $extension = strtolower($file->getClientOriginalExtension());
         if (!in_array($extension, ['ttf', 'otf'])) {
-            return back()->with('error', 'فقط فایل های ttf و otf پشتیبانی میشود.');
+            return response()->json(['message' => 'فقط فایل های ttf و otf پشتیبانی میشود.'], 422);
         }
 
         $fontPath = $file->getRealPath();
-
         $outDir = storage_path('app/fonts_out/');
+        
         if (!file_exists($outDir)) {
             mkdir($outDir, 0777, true);
         }
@@ -35,18 +35,14 @@ class FontConverterController extends Controller
         $fontname = \TCPDF_FONTS::addTTFfont($fontPath, 'TrueTypeUnicode', '', 32, $outDir);
 
         if (!$fontname) {
-            return back()->with('error', 'خطا در تبدیل فونت. ممکن است فایل خراب یا پشتیبانی نمیشود.');
+            return response()->json(['message' => 'خطا در تبدیل فونت. ممکن است فایل خراب یا پشتیبانی نمیشود.'], 500);
         }
 
         $zipPath = storage_path('app/fonts_out/' . $fontname . '.zip');
         $zip = new ZipArchive;
 
         if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
-            $filesToZip = [
-                $fontname . '.php',
-                $fontname . '.z',
-                $fontname . '.ctg.z'
-            ];
+            $filesToZip = [$fontname . '.php', $fontname . '.z', $fontname . '.ctg.z'];
             
             foreach ($filesToZip as $f) {
                 $fp = $outDir . $f;
@@ -63,7 +59,7 @@ class FontConverterController extends Controller
                 }
             }
         } else {
-            return back()->with('error', 'خطا در ایجاد فایل زیپ.');
+            return response()->json(['message' => 'خطا در ایجاد فایل زیپ.'], 500);
         }
 
         return response()->download($zipPath)->deleteFileAfterSend(true);
