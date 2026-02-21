@@ -1,4 +1,4 @@
-## تبدیل فونت به فرمت `.ctg.z, .php, .z` در کتابخانه [tcpdf](https://tcpdf.org/)
+## تبدیل فونت به فرمت `ctg.z - php - z` در کتابخانه [tcpdf](https://tcpdf.org/)
 
 نصب:
 
