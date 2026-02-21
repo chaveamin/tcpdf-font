@@ -15,14 +15,14 @@ class FontConverterController extends Controller
     public function convert(Request $request)
     {
         $request->validate([
-            'font' => 'required|file|max:10240', // Max 10MB
+            'font' => 'required|file|max:10240',
         ]);
 
         $file = $request->file('font');
         
         $extension = strtolower($file->getClientOriginalExtension());
         if (!in_array($extension, ['ttf', 'otf'])) {
-            return back()->with('error', 'Only .ttf and .otf files are supported.');
+            return back()->with('error', 'فقط فایل های ttf و otf پشتیبانی میشود.');
         }
 
         $fontPath = $file->getRealPath();
@@ -35,7 +35,7 @@ class FontConverterController extends Controller
         $fontname = \TCPDF_FONTS::addTTFfont($fontPath, 'TrueTypeUnicode', '', 32, $outDir);
 
         if (!$fontname) {
-            return back()->with('error', 'TCPDF failed to convert the font. The file might be corrupted or unsupported.');
+            return back()->with('error', 'خطا در تبدیل فونت. ممکن است فایل خراب یا پشتیبانی نمیشود.');
         }
 
         $zipPath = storage_path('app/fonts_out/' . $fontname . '.zip');
@@ -63,7 +63,7 @@ class FontConverterController extends Controller
                 }
             }
         } else {
-            return back()->with('error', 'Failed to create the ZIP archive.');
+            return back()->with('error', 'خطا در ایجاد فایل زیپ.');
         }
 
         return response()->download($zipPath)->deleteFileAfterSend(true);
