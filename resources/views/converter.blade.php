@@ -12,7 +12,7 @@
     <main class="max-w-3xl w-full bg-white rounded-2xl ring ring-zinc-900/5 shadow-lg shadow-zinc-800/5 p-8">
         <div class="text-center mb-8">
             <h1 class="text-xl sm:text-2xl font-extrabold text-zinc-800">تبدیل فونت به tcpdf</h1>
-            <p class="text-zinc-500 mt-2 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf یا otf آپلود کنید.</p>
+            <p class="text-zinc-500 mt-2 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
         </div>
 
         <div id="error-container" class="hidden mb-4 p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg"></div>
@@ -25,9 +25,9 @@
                     <div class="flex flex-col items-center justify-center p-4 text-center">
                         <svg aria-hidden="true" class="w-10 h-10 mb-3 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                         <p class="mb-2 sm:text-base text-sm text-zinc-500" id="file-name-display"><span class="font-semibold">برای آپلود کلیک کنید</span> یا فایل فونت را بکشید و رها کنید</p>
-                        <p class="sm:text-sm text-xs text-zinc-500">TTF یا OTF (حداکثر 10 مگابایت)</p>
+                        <p class="sm:text-sm text-xs text-zinc-500">TTF (حداکثر 10 مگابایت)</p>
                     </div>
-                    <input id="dropzone-file" type="file" name="font" class="hidden" accept=".ttf,.otf" required />
+                    <input id="dropzone-file" type="file" name="font" class="hidden" accept=".ttf" required />
                 </label>
             </div>
 
