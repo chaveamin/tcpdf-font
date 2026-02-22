@@ -7,8 +7,13 @@
     <link rel="shortcut icon" href="{{ url('favicon.png') }}" type="image/x-icon">
     @vite('resources/css/app.css')
 </head>
-<body class="bg-zinc-50 min-h-screen flex items-center justify-center p-6 font-vazirmatn">
-
+    <body class="bg-zinc-50 min-h-screen flex items-center justify-center p-6 font-vazirmatn">
+        <header class=" absolute top-0 right-0 p-6">
+        <a target="_blank" href="https://github.com/chaveamin/tcpdf-font">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            </svg>
+        </a>
+    </header>
     <main class="max-w-3xl w-full bg-white rounded-2xl ring ring-zinc-900/5 shadow-lg shadow-zinc-800/5 p-8">
         <div class="text-center mb-8">
             <h1 class="text-xl sm:text-2xl font-extrabold text-zinc-800">تبدیل فونت به tcpdf</h1>
