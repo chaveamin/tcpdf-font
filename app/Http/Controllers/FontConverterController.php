@@ -29,13 +29,15 @@ class FontConverterController extends Controller
         $safeFontName = preg_replace('/[^a-z0-9]/', '', strtolower($originalName));
         $tempFileName = $safeFontName . '.' . $extension;
         
-        $tempPath = $file->storeAs('temp_fonts', $tempFileName);
-        $fontPath = storage_path('app/' . $tempPath);
+        $tempDir = storage_path('app/temp_fonts/');
+        $outDir  = storage_path('app/fonts_out/');
 
-        $outDir = storage_path('app/fonts_out/');
-        if (!file_exists($outDir)) {
-            mkdir($outDir, 0777, true);
-        }
+        if (!file_exists($tempDir)) { mkdir($tempDir, 0775, true); }
+        if (!file_exists($outDir)) { mkdir($outDir, 0775, true); }
+
+        $fontPath = $tempDir . $tempFileName;
+
+        $file->move($tempDir, $tempFileName);
 
         $fontname = \TCPDF_FONTS::addTTFfont($fontPath, 'TrueTypeUnicode', '', 32, $outDir);
 
@@ -44,9 +46,9 @@ class FontConverterController extends Controller
         }
 
         if (!$fontname) {
-            return response()->json(['message' => 'فایل فونت ممکن است خراب شده باشد'], 500);
+            return response()->json(['message' => 'TCPDF failed to convert the font. Check cPanel directory permissions or PHP extensions.'], 500);
         }
-
+        
         $zipPath = storage_path('app/fonts_out/' . $fontname . '.zip');
         $zip = new ZipArchive;
 
