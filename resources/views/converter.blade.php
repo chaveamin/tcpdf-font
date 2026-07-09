@@ -22,10 +22,10 @@
                 </svg>
             </a>
         </header>
-        <main class="max-w-3xl w-full bg-white rounded-2xl ring ring-zinc-900/5 shadow-lg shadow-zinc-800/5 p-8">
+        <main class="max-w-3xl w-full bg-white rounded-3xl ring-2 ring-zinc-900/10 p-8">
             <div class="text-center mb-8">
                 <h1 class="text-xl sm:text-2xl font-extrabold text-zinc-800">تبدیل فونت به tcpdf</h1>
-                <p class="text-zinc-500 mt-2 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
+                <p class="text-zinc-500 mt-6 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
             </div>
 
             <div id="error-container" class="hidden mb-4 p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg"></div>
@@ -37,14 +37,14 @@
                     <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-zinc-300 border-dashed rounded-lg cursor-pointer bg-zinc-50 hover:bg-zinc-100 transition-colors">
                         <div class="flex flex-col items-center justify-center p-4 text-center">
                             <svg aria-hidden="true" class="w-10 h-10 mb-3 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            <p class="mb-2 sm:text-base text-sm text-zinc-500" id="file-name-display"><span class="font-semibold">برای آپلود کلیک کنید</span> یا فایل فونت را بکشید و رها کنید</p>
+                            <p class="mb-4 sm:text-base text-sm text-zinc-500" id="file-name-display"><span class="font-semibold">برای آپلود کلیک کنید</span> یا فایل فونت را بکشید و رها کنید</p>
                             <p class="sm:text-sm text-xs text-zinc-500">TTF (حداکثر 10 مگابایت)</p>
                         </div>
                         <input id="dropzone-file" type="file" name="font" class="hidden" accept=".ttf" required />
                     </label>
                 </div>
 
-                <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring ring-green-700 border-t border-t-white/10 bg-green-600 focus-visible:ring-4 focus-visible:ring-green-500/30 focus:ring-4 focus:ring-green-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-colors">
+                <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring bg-zinc-900 focus-visible:ring-4 focus-visible:ring-zinc-500/30 focus:ring-4 focus:ring-zinc-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-colors">
                     <svg id="spinner" class="hidden w-5 h-5 text-white animate-spin" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

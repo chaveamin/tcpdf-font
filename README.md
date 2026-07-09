@@ -2,9 +2,7 @@
 
 به منظور سهولت در شخصی سازی فاکتور های [WHMCS](https://www.whmcs.com/) برای صاحبان هاستینگ و توسعه دهندگان
 
-نصب:
-
-```powershell
+```sh
 npm run dev
 php artisan serve
 ```
