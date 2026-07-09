@@ -9,11 +9,26 @@ use ZipArchive;
 
 class FontConverterController extends Controller
 {
-    public function index()
+    private function getVisitorId(Request $request): string
     {
-        $conversions = ConversionHistory::latest()->take(10)->get();
+        $visitorId = $request->cookie('visitor_id');
 
-        return view('converter', compact('conversions'));
+        if (!$visitorId) {
+            $visitorId = bin2hex(random_bytes(16));
+        }
+
+        return $visitorId;
+    }
+
+    public function index(Request $request)
+    {
+        $visitorId = $this->getVisitorId($request);
+        $conversions = ConversionHistory::where('visitor_id', $visitorId)->latest()->take(10)->get();
+
+        $response = view('converter', compact('conversions'));
+        $response->withCookie(cookie('visitor_id', $visitorId, 60 * 24 * 365));
+
+        return $response;
     }
 
     public function convert(Request $request)
@@ -65,7 +80,7 @@ class FontConverterController extends Controller
             return response()->json(['message' => $errors ? implode("\n", $errors) : 'هیچ فایلی آپلود نشد.'], 422);
         }
 
-        return $this->createZipAndRespond($convertedNames, $originalNames, $errors);
+        return $this->createZipAndRespond($convertedNames, $originalNames, $errors, $request);
     }
 
     public function searchGoogleFonts(Request $request)
@@ -184,10 +199,10 @@ class FontConverterController extends Controller
 
         $originalName = $family . ' ' . $variant;
 
-        return $this->createZipAndRespond([$fontname], [$originalName], []);
+        return $this->createZipAndRespond([$fontname], [$originalName], [], $request);
     }
 
-    private function createZipAndRespond(array $convertedNames, array $originalNames, array $errors)
+    private function createZipAndRespond(array $convertedNames, array $originalNames, array $errors, Request $request)
     {
         $tempDir = storage_path('app/temp_fonts/');
         $outDir  = storage_path('app/fonts_out/');
@@ -222,6 +237,7 @@ class FontConverterController extends Controller
         }
 
         ConversionHistory::create([
+            'visitor_id' => $this->getVisitorId($request),
             'font_names' => implode(', ', $originalNames),
             'zip_path'   => 'fonts_out/' . $zipName . '.zip',
             'file_count' => count($convertedNames),
@@ -236,8 +252,12 @@ class FontConverterController extends Controller
         return $response;
     }
 
-    public function download(ConversionHistory $conversion)
+    public function download(ConversionHistory $conversion, Request $request)
     {
+        if ($conversion->visitor_id !== $this->getVisitorId($request)) {
+            abort(403);
+        }
+
         $fullPath = $conversion->full_path;
 
         if (!file_exists($fullPath)) {
