@@ -110,11 +110,19 @@
                         <p class="text-sm font-semibold text-zinc-700 truncate">{{ $conversion->font_names }}</p>
                         <p class="text-xs text-zinc-400 mt-0.5">{{ $conversion->file_count }} فونت &middot; {{ $conversion->created_at->diffForHumans() }}</p>
                     </div>
-                    <a href="{{ route('converter.download', $conversion) }}" class="shrink-0 mr-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors">
-                        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                            <polyline points="7 10 12 15 17 10"/>
-                            <line x1="12" y1="15" x2="12" y2="3"/>
+                    <a href="{{ route('converter.download', $conversion) }}" class="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors">
+                        <svg class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g class="*:stroke-2" clip-path="url(#clip0_4418_9710)">
+                        <path d="M9 11V17L11 15" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 17L7 15" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 10H18C15 10 14 9 14 6V2L22 10Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                        </g>
+                        <defs>
+                        <clipPath id="clip0_4418_9710">
+                        <rect width="24" height="24" fill="white"/>
+                        </clipPath>
+                        </defs>
                         </svg>
                         دانلود
                     </a>
