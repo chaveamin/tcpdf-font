@@ -38,66 +38,109 @@
         <p class="text-zinc-500 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
         <main class="max-w-3xl w-full bg-white rounded-3xl ring-2 ring-zinc-900/10 p-8">
             <div id="error-container" class="hidden mb-4 p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg"></div>
-            <form id="converter-form" action="{{ route('converter.process') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                @csrf
-                
-                <div class="flex items-center justify-center w-full">
-                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-zinc-300 border-dashed rounded-xl cursor-pointer bg-zinc-100 hover:bg-zinc-200/75 transition-colors">
-                        <div class="flex flex-col items-center gap-y-4 justify-center p-4 text-center">
-                            <svg class="size-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <g class="*:stroke-zinc-500" clip-path="url(#clip0_4482_3996)">
-                                <path d="M13.58 19.6199H16.52C19.26 19.6199 21.49 17.4 21.49 14.66C21.49 12.46 20.09 10.62 18.12 9.95996" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
-                                <path d="M13.38 10.8103C14.24 10.1103 15.33 9.69028 16.53 9.69028C17.09 9.69028 17.64 9.78028 18.13 9.96028C17.34 6.42028 14.18 3.78027 10.41 3.78027C7.59003 3.78027 5.11996 5.25028 3.70996 7.47028" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
-                                <path d="M5.65002 20.2098L5.67004 13.7598L8.82996 16.8098L5.67004 13.7598L2.5 16.8098" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                                </g>
-                                <defs>
-                                <clipPath id="clip0_4482_3996">
-                                <rect width="24" height="24" fill="white"/>
-                                </clipPath>
-                                </defs>
-                            </svg>
-                            <p class="sm:text-base text-sm text-zinc-500" id="file-name-display">برای آپلود کلیک کنید یا فایل‌های فونت را بکشید و رها کنید</p>
-                            <div class="flex gap-3 *:rounded-md *:px-2 *:py-1 *:bg-white *:ring *:ring-zinc-200">
-                                <p class="text-xs">ttf.</p>
-                                <p class="text-xs">حداکثر 10 مگابایت</p>
-                                <p class="text-xs">انتخاب چندین فونت</p>
-                            </div>
-                        </div>
-                        <input id="dropzone-file" type="file" name="font[]" class="hidden" accept=".ttf" multiple required />
-                    </label>
-                </div>
 
-                <div id="file-list" class="hidden space-y-2"></div>
-
-                <div id="preview-section" class="hidden space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs sm:text-sm text-zinc-500">پیش‌نمایش فونت</span>
-                        <span id="preview-font-name" class="text-xs sm:text-sm font-semibold text-zinc-700"></span>
-                    </div>
-
-                    <div id="preview-box" class="w-full p-5 border border-zinc-200 rounded-xl bg-zinc-50 text-zinc-800 leading-relaxed overflow-auto" style="font-size: 18px;">
-                        این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند
-                        <br>The quick brown fox jumps over the lazy dog
-                        <br>0123456789
-                    </div>
-
-                    <div>
-                        <label for="preview-custom-text" class="block text-xs text-zinc-500 mb-1">متن دلخواه</label>
-                        <input id="preview-custom-text" type="text" placeholder="متن خود را اینجا تایپ کنید..." class="w-full px-4 py-2.5 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors">
-                    </div>
-                </div>
-
-                <div id="progress-container" class="hidden space-y-2">
-                    <div class="w-full h-2 bg-zinc-200 rounded-full overflow-hidden">
-                        <div id="progress-bar" class="h-full bg-zinc-900 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
-                    </div>
-                    <p id="progress-status" class="text-xs text-zinc-500 text-center"></p>
-                </div>
-
-                <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring bg-zinc-900 hover:bg-zinc-800 hover:-translate-y-px focus-visible:ring-4 focus-visible:ring-zinc-500/30 focus:ring-4 focus:ring-zinc-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-all">
-                    <span id="btn-text">تبدیل و دانلود فونت‌ها</span>
+            {{-- Tabs --}}
+            <div class="flex gap-2 mb-6 border-b border-zinc-200">
+                <button type="button" id="tab-upload" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-zinc-900 text-zinc-900 -mb-px transition-colors">
+                    آپلود فایل
                 </button>
-            </form>
+                <button type="button" id="tab-google" class="tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-zinc-400 hover:text-zinc-600 -mb-px transition-colors">
+                    گوگل فونت
+                </button>
+            </div>
+
+            {{-- Upload Tab --}}
+            <div id="panel-upload">
+                <form id="converter-form" action="{{ route('converter.process') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    @csrf
+
+                    <div class="flex items-center justify-center w-full">
+                        <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-zinc-300 border-dashed rounded-xl cursor-pointer bg-zinc-100 hover:bg-zinc-200/75 transition-colors">
+                            <div class="flex flex-col items-center gap-y-4 justify-center p-4 text-center">
+                                <svg class="size-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <g class="*:stroke-zinc-500" clip-path="url(#clip0_4482_3996)">
+                                    <path d="M13.58 19.6199H16.52C19.26 19.6199 21.49 17.4 21.49 14.66C21.49 12.46 20.09 10.62 18.12 9.95996" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
+                                    <path d="M13.38 10.8103C14.24 10.1103 15.33 9.69028 16.53 9.69028C17.09 9.69028 17.64 9.78028 18.13 9.96028C17.34 6.42028 14.18 3.78027 10.41 3.78027C7.59003 3.78027 5.11996 5.25028 3.70996 7.47028" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
+                                    <path d="M5.65002 20.2098L5.67004 13.7598L8.82996 16.8098L5.67004 13.7598L2.5 16.8098" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </g>
+                                    <defs>
+                                    <clipPath id="clip0_4482_3996">
+                                    <rect width="24" height="24" fill="white"/>
+                                    </clipPath>
+                                    </defs>
+                                </svg>
+                                <p class="sm:text-base text-sm text-zinc-500" id="file-name-display">برای آپلود کلیک کنید یا فایل‌های فونت را بکشید و رها کنید</p>
+                                <div class="flex gap-3 *:rounded-md *:px-2 *:py-1 *:bg-white *:ring *:ring-zinc-200">
+                                    <p class="text-xs">ttf.</p>
+                                    <p class="text-xs">حداکثر 10 مگابایت</p>
+                                    <p class="text-xs">انتخاب چندین فونت</p>
+                                </div>
+                            </div>
+                            <input id="dropzone-file" type="file" name="font[]" class="hidden" accept=".ttf" multiple required />
+                        </label>
+                    </div>
+
+                    <div id="file-list" class="hidden space-y-2"></div>
+
+                    <div id="preview-section" class="hidden space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs sm:text-sm text-zinc-500">پیش‌نمایش فونت</span>
+                            <span id="preview-font-name" class="text-xs sm:text-sm font-semibold text-zinc-700"></span>
+                        </div>
+
+                        <div id="preview-box" class="w-full p-5 border border-zinc-200 rounded-xl bg-zinc-50 text-zinc-800 leading-relaxed overflow-auto" style="font-size: 18px;">
+                            این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند
+                            <br>The quick brown fox jumps over the lazy dog
+                            <br>0123456789
+                        </div>
+
+                        <div>
+                            <label for="preview-custom-text" class="block text-xs text-zinc-500 mb-1">متن دلخواه</label>
+                            <input id="preview-custom-text" type="text" placeholder="متن خود را اینجا تایپ کنید..." class="w-full px-4 py-2.5 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors">
+                        </div>
+                    </div>
+
+                    <div id="progress-container" class="hidden space-y-2">
+                        <div class="w-full h-2 bg-zinc-200 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-zinc-900 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+                        </div>
+                        <p id="progress-status" class="text-xs text-zinc-500 text-center"></p>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring bg-zinc-900 hover:bg-zinc-800 hover:-translate-y-px focus-visible:ring-4 focus-visible:ring-zinc-500/30 focus:ring-4 focus:ring-zinc-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-all">
+                        <span id="btn-text">تبدیل و دانلود فونت‌ها</span>
+                    </button>
+                </form>
+            </div>
+
+            {{-- Google Fonts Tab --}}
+            <div id="panel-google" class="hidden space-y-5">
+                <div class="relative">
+                    <input id="gf-search" type="text" placeholder="جستجوی فونت..." class="w-full px-4 py-3 text-sm border border-zinc-200 rounded-xl bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors pr-10">
+                    <svg class="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                </div>
+
+                <div id="gf-loading" class="hidden text-center py-8">
+                    <p class="text-sm text-zinc-500">در حال جستجو...</p>
+                </div>
+
+                <div id="gf-error" class="hidden p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg"></div>
+
+                <div id="gf-results" class="hidden space-y-2 max-h-96 overflow-y-auto"></div>
+
+                <div id="gf-empty" class="hidden text-center py-8">
+                    <p class="text-sm text-zinc-400">نتیجه‌ای یافت نشد.</p>
+                </div>
+
+                <div id="gf-progress" class="hidden space-y-2">
+                    <div class="w-full h-2 bg-zinc-200 rounded-full overflow-hidden">
+                        <div id="gf-progress-bar" class="h-full bg-zinc-900 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+                    </div>
+                    <p id="gf-progress-status" class="text-xs text-zinc-500 text-center"></p>
+                </div>
+            </div>
         </main>
 
         @if($conversions->count())
@@ -130,7 +173,26 @@
             </div>
         </div>
         @endif
+
         <script>
+            // ── Tabs ──
+            const tabUpload = document.getElementById('tab-upload');
+            const tabGoogle = document.getElementById('tab-google');
+            const panelUpload = document.getElementById('panel-upload');
+            const panelGoogle = document.getElementById('panel-google');
+
+            function switchTab(tab) {
+                const isUpload = tab === 'upload';
+                tabUpload.className = 'tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 ' + (isUpload ? 'border-zinc-900 text-zinc-900' : 'border-transparent text-zinc-400 hover:text-zinc-600') + ' -mb-px transition-colors';
+                tabGoogle.className = 'tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 ' + (!isUpload ? 'border-zinc-900 text-zinc-900' : 'border-transparent text-zinc-400 hover:text-zinc-600') + ' -mb-px transition-colors';
+                panelUpload.classList.toggle('hidden', !isUpload);
+                panelGoogle.classList.toggle('hidden', isUpload);
+            }
+
+            tabUpload.addEventListener('click', () => switchTab('upload'));
+            tabGoogle.addEventListener('click', () => switchTab('google'));
+
+            // ── Upload Tab Logic ──
             const PREVIEW_FONT_NAME = 'preview-font';
             const defaultText = " این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند\nThe quick brown fox jumps over the lazy dog\n0123456789";
             let currentFontFace = null;
@@ -152,7 +214,6 @@
 
             async function loadFontPreview(file) {
                 cleanupPreviewFont();
-
                 const arrayBuffer = await file.arrayBuffer();
                 currentFontFace = new FontFace(PREVIEW_FONT_NAME, arrayBuffer);
                 await currentFontFace.load();
@@ -171,32 +232,26 @@
 
                 previewFontName.textContent = file.name;
                 previewSection.classList.remove('hidden');
-
                 previewBox.style.fontSize = '18px';
                 customTextInput.value = '';
             }
 
             const dropzoneLabel = dropzone.closest('label');
-
             dropzoneLabel.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 dropzoneLabel.classList.add('border-zinc-500', 'bg-zinc-200/75');
             });
-
             dropzoneLabel.addEventListener('dragleave', function(e) {
                 e.preventDefault();
                 dropzoneLabel.classList.remove('border-zinc-500', 'bg-zinc-200/75');
             });
-
             dropzoneLabel.addEventListener('drop', function(e) {
                 e.preventDefault();
                 dropzoneLabel.classList.remove('border-zinc-500', 'bg-zinc-200/75');
                 if (e.dataTransfer.files.length > 0) {
                     const dt = new DataTransfer();
                     for (const f of e.dataTransfer.files) {
-                        if (f.name.toLowerCase().endsWith('.ttf')) {
-                            dt.items.add(f);
-                        }
+                        if (f.name.toLowerCase().endsWith('.ttf')) dt.items.add(f);
                     }
                     dropzone.files = dt.files;
                     dropzone.dispatchEvent(new Event('change'));
@@ -222,9 +277,7 @@
                     fileListEl.classList.remove('hidden');
                 }
 
-                try {
-                    await loadFontPreview(files[0]);
-                } catch (err) {
+                try { await loadFontPreview(files[0]); } catch (err) {
                     previewSection.classList.add('hidden');
                     cleanupPreviewFont();
                 }
@@ -246,7 +299,6 @@
 
             document.getElementById('converter-form').addEventListener('submit', function(e) {
                 e.preventDefault();
-
                 const form = this;
                 const submitBtn = document.getElementById('submit-btn');
                 const btnText = document.getElementById('btn-text');
@@ -261,9 +313,7 @@
                 progressBar.style.width = '0%';
                 progressStatus.textContent = 'آپلود فایل...';
 
-                const formData = new FormData(form);
                 const xhr = new XMLHttpRequest();
-
                 xhr.upload.addEventListener('progress', function(e) {
                     if (e.lengthComputable) {
                         const pct = Math.round((e.loaded / e.total) * 100);
@@ -290,9 +340,7 @@
                         let filename = 'tcpdf_fonts.zip';
                         if (disposition && disposition.indexOf('attachment') !== -1) {
                             const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-                            if (matches != null && matches[1]) {
-                                filename = matches[1].replace(/['"]/g, '');
-                            }
+                            if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
                         }
 
                         const downloadUrl = window.URL.createObjectURL(blob);
@@ -302,7 +350,6 @@
                         a.download = filename;
                         document.body.appendChild(a);
                         a.click();
-
                         setTimeout(function() {
                             window.URL.revokeObjectURL(downloadUrl);
                             a.remove();
@@ -310,10 +357,7 @@
                         }, 500);
                     } else {
                         let msg = 'خطای تبدیل.';
-                        try {
-                            const errData = JSON.parse(xhr.responseText);
-                            msg = errData.message || msg;
-                        } catch (_) {}
+                        try { msg = JSON.parse(xhr.responseText).message || msg; } catch (_) {}
                         errorContainer.innerText = msg;
                         errorContainer.classList.remove('hidden');
                     }
@@ -340,8 +384,152 @@
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 xhr.setRequestHeader('Accept', 'application/json, application/zip');
                 xhr.responseType = 'blob';
-                xhr.send(formData);
+                xhr.send(new FormData(form));
             });
+
+            // ── Google Fonts Tab Logic ──
+            const gfSearch = document.getElementById('gf-search');
+            const gfLoading = document.getElementById('gf-loading');
+            const gfError = document.getElementById('gf-error');
+            const gfResults = document.getElementById('gf-results');
+            const gfEmpty = document.getElementById('gf-empty');
+            const gfProgress = document.getElementById('gf-progress');
+            const gfProgressBar = document.getElementById('gf-progress-bar');
+            const gfProgressStatus = document.getElementById('gf-progress-status');
+            let gfSearchTimeout = null;
+
+            gfSearch.addEventListener('input', function() {
+                clearTimeout(gfSearchTimeout);
+                const q = this.value.trim();
+                if (q.length < 2) {
+                    gfResults.classList.add('hidden');
+                    gfEmpty.classList.add('hidden');
+                    return;
+                }
+                gfSearchTimeout = setTimeout(() => searchGoogleFonts(q), 300);
+            });
+
+            async function searchGoogleFonts(query) {
+                gfLoading.classList.remove('hidden');
+                gfResults.classList.add('hidden');
+                gfEmpty.classList.add('hidden');
+                gfError.classList.add('hidden');
+
+                try {
+                    const resp = await fetch('{{ route("google-fonts.search") }}?q=' + encodeURIComponent(query));
+                    const data = await resp.json();
+
+                    if (!resp.ok) {
+                        gfError.innerText = data.message || 'خطا در جستجو.';
+                        gfError.classList.remove('hidden');
+                        gfLoading.classList.add('hidden');
+                        return;
+                    }
+
+                    gfLoading.classList.add('hidden');
+
+                    if (data.length === 0) {
+                        gfEmpty.classList.remove('hidden');
+                        return;
+                    }
+
+                    gfResults.innerHTML = data.map(font => {
+                        const variants = font.variants.filter(v => /^\d+$/.test(v));
+                        return '<div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">' +
+                            '<div class="flex flex-col items-start gap-1">' +
+                                '<p class="text-sm font-semibold text-zinc-700">' + font.family + '</p>' +
+                                '<p class="text-xs text-zinc-400">' + font.category + ' &bull; ' + variants.length + ' وزن</p>' +
+                            '</div>' +
+                            '<select class="gf-variant-select px-2 py-1 text-xs border border-zinc-200 rounded-lg bg-white text-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-400">' +
+                                variants.map(v => '<option value="' + v + '">' + v + '</option>').join('') +
+                            '</select>' +
+                            '<button type="button" class="gf-convert-btn shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors" data-family="' + font.family + '">' +
+                                '<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+                                'تبدیل' +
+                            '</button>' +
+                        '</div>';
+                    }).join('');
+
+                    gfResults.classList.remove('hidden');
+
+                    gfResults.querySelectorAll('.gf-convert-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const family = this.dataset.family;
+                            const select = this.closest('.flex').querySelector('.gf-variant-select');
+                            const variant = select.value;
+                            convertGoogleFont(family, variant, this);
+                        });
+                    });
+                } catch (err) {
+                    gfLoading.classList.add('hidden');
+                    gfError.innerText = 'خطای شبکه.';
+                    gfError.classList.remove('hidden');
+                }
+            }
+
+            async function convertGoogleFont(family, variant, btn) {
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<svg class="size-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"/></svg> تبدیل...';
+
+                gfProgress.classList.remove('hidden');
+                gfProgressBar.style.width = '30%';
+                gfProgressStatus.textContent = 'دانلود فونت از گوگل...';
+                gfError.classList.add('hidden');
+
+                try {
+                    const resp = await fetch('{{ route("google-fonts.convert") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/zip',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ family, variant })
+                    });
+
+                    if (!resp.ok) {
+                        let msg = 'خطا در تبدیل فونت.';
+                        try { msg = (await resp.json()).message || msg; } catch (_) {}
+                        throw new Error(msg);
+                    }
+
+                    gfProgressBar.style.width = '80%';
+                    gfProgressStatus.textContent = 'تبدیل فونت...';
+
+                    const blob = await resp.blob();
+                    const disposition = resp.headers.get('Content-Disposition');
+                    let filename = family.replace(/\s+/g, '_') + '.zip';
+                    if (disposition && disposition.indexOf('attachment') !== -1) {
+                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+                    }
+
+                    gfProgressBar.style.width = '100%';
+                    gfProgressStatus.textContent = 'دانلود فایل...';
+
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = downloadUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(function() {
+                        window.URL.revokeObjectURL(downloadUrl);
+                        a.remove();
+                        window.location.reload();
+                    }, 500);
+                } catch (err) {
+                    gfError.innerText = err.message;
+                    gfError.classList.remove('hidden');
+                    gfProgress.classList.add('hidden');
+                    gfProgressBar.style.width = '0%';
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
         </script>
     </body>
 </html>

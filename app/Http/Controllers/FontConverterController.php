@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ConversionHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use ZipArchive;
 
 class FontConverterController extends Controller
@@ -63,6 +64,121 @@ class FontConverterController extends Controller
         if (empty($convertedNames)) {
             return response()->json(['message' => $errors ? implode("\n", $errors) : 'هیچ فایلی آپلود نشد.'], 422);
         }
+
+        return $this->createZipAndRespond($convertedNames, $originalNames, $errors);
+    }
+
+    public function searchGoogleFonts(Request $request)
+    {
+        $apiKey = config('services.google_fonts.key');
+
+        if (!$apiKey) {
+            return response()->json(['message' => 'کلید API گوگل فونت تنظیم نشده است.'], 500);
+        }
+
+        $query = strtolower($request->input('q', ''));
+
+        $response = Http::timeout(15)->get('https://www.googleapis.com/webfonts/v1/webfonts', [
+            'key'  => $apiKey,
+            'sort' => 'popularity',
+        ]);
+
+        if ($response->failed()) {
+            return response()->json(['message' => 'خطا در دریافت اطلاعات از گوگل فونت.'], 502);
+        }
+
+        $data = $response->json();
+        $fonts = collect($data['items'] ?? []);
+
+        if ($query) {
+            $fonts = $fonts->filter(fn ($font) => str_contains(strtolower($font['family']), $query));
+        }
+
+        $fonts = $fonts->take(20)->map(function ($font) {
+            return [
+                'family'   => $font['family'],
+                'variants' => $font['variants'],
+                'category' => $font['category'],
+            ];
+        });
+
+        return response()->json($fonts);
+    }
+
+    public function convertGoogleFont(Request $request)
+    {
+        $apiKey = config('services.google_fonts.key');
+
+        if (!$apiKey) {
+            return response()->json(['message' => 'کلید API گوگل فونت تنظیم نشده است.'], 500);
+        }
+
+        $request->validate([
+            'family'  => 'required|string',
+            'variant' => 'required|string',
+        ]);
+
+        $family = $request->input('family');
+        $variant = $request->input('variant');
+
+        $tempDir = storage_path('app/temp_fonts/');
+        $outDir  = storage_path('app/fonts_out/');
+        if (!file_exists($tempDir)) { mkdir($tempDir, 0775, true); }
+        if (!file_exists($outDir)) { mkdir($outDir, 0775, true); }
+
+        // Build the Google Fonts CSS URL to get the actual TTF URL
+        $cssUrl = "https://fonts.googleapis.com/css2?family=" . urlencode($family) . ":wght@" . $variant;
+
+        $cssResponse = Http::timeout(10)->withHeaders([
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        ])->get($cssUrl);
+
+        if ($cssResponse->failed()) {
+            return response()->json(['message' => 'خطا در دریافت فونت از گوگل.'], 502);
+        }
+
+        // Parse CSS to find the TTF url
+        $css = $cssResponse->body();
+        preg_match_all('/url\((https:\/\/[^)]+\.ttf)\)/', $css, $matches);
+
+        if (empty($matches[1])) {
+            return response()->json(['message' => 'فایل TTF یافت نشد.'], 502);
+        }
+
+        $ttfUrl = $matches[1][0];
+
+        // Download the TTF
+        $ttfResponse = Http::timeout(30)->get($ttfUrl);
+
+        if ($ttfResponse->failed()) {
+            return response()->json(['message' => 'خطا در دانلود فایل فونت.'], 502);
+        }
+
+        $safeFontName = preg_replace('/[^a-z0-9]/', '', strtolower($family)) . '_' . preg_replace('/[^a-z0-9]/', '', strtolower($variant));
+        $tempFileName = $safeFontName . '.ttf';
+        $fontPath = $tempDir . $tempFileName;
+
+        file_put_contents($fontPath, $ttfResponse->body());
+
+        $fontname = \TCPDF_FONTS::addTTFfont($fontPath, 'TrueTypeUnicode', '', 32, $outDir);
+
+        if (file_exists($fontPath)) {
+            unlink($fontPath);
+        }
+
+        if (!$fontname) {
+            return response()->json(['message' => 'تبدیل فونت ناموفق بود.'], 500);
+        }
+
+        $originalName = $family . ' ' . $variant;
+
+        return $this->createZipAndRespond([$fontname], [$originalName], []);
+    }
+
+    private function createZipAndRespond(array $convertedNames, array $originalNames, array $errors)
+    {
+        $tempDir = storage_path('app/temp_fonts/');
+        $outDir  = storage_path('app/fonts_out/');
 
         $zipName = count($convertedNames) === 1 ? $convertedNames[0] : 'tcpdf_fonts';
         $zipPath = storage_path('app/fonts_out/' . $zipName . '.zip');
