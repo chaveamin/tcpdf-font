@@ -78,10 +78,14 @@ class FontConverterController extends Controller
 
         $query = strtolower($request->input('q', ''));
 
-        $response = Http::timeout(15)->get('https://www.googleapis.com/webfonts/v1/webfonts', [
-            'key'  => $apiKey,
-            'sort' => 'popularity',
-        ]);
+        try {
+            $response = Http::timeout(15)->get('https://www.googleapis.com/webfonts/v1/webfonts', [
+                'key'  => $apiKey,
+                'sort' => 'popularity',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'خطا در اتصال به گوگل فونت: ' . $e->getMessage()], 502);
+        }
 
         if ($response->failed()) {
             return response()->json(['message' => 'خطا در دریافت اطلاعات از گوگل فونت.'], 502);
@@ -100,7 +104,7 @@ class FontConverterController extends Controller
                 'variants' => $font['variants'],
                 'category' => $font['category'],
             ];
-        });
+        })->values();
 
         return response()->json($fonts);
     }
@@ -129,9 +133,13 @@ class FontConverterController extends Controller
         // Build the Google Fonts CSS URL to get the actual TTF URL
         $cssUrl = "https://fonts.googleapis.com/css2?family=" . urlencode($family) . ":wght@" . $variant;
 
-        $cssResponse = Http::timeout(10)->withHeaders([
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        ])->get($cssUrl);
+        try {
+            $cssResponse = Http::timeout(15)->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            ])->get($cssUrl);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'خطا در اتصال به گوگل: ' . $e->getMessage()], 502);
+        }
 
         if ($cssResponse->failed()) {
             return response()->json(['message' => 'خطا در دریافت فونت از گوگل.'], 502);
@@ -148,7 +156,11 @@ class FontConverterController extends Controller
         $ttfUrl = $matches[1][0];
 
         // Download the TTF
-        $ttfResponse = Http::timeout(30)->get($ttfUrl);
+        try {
+            $ttfResponse = Http::timeout(30)->get($ttfUrl);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'خطا در دانلود فونت: ' . $e->getMessage()], 502);
+        }
 
         if ($ttfResponse->failed()) {
             return response()->json(['message' => 'خطا در دانلود فایل فونت.'], 502);

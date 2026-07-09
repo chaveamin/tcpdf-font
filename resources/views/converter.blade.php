@@ -417,7 +417,15 @@
 
                 try {
                     const resp = await fetch('{{ route("google-fonts.search") }}?q=' + encodeURIComponent(query));
-                    const data = await resp.json();
+
+                    const text = await resp.text();
+                    let data;
+                    try { data = JSON.parse(text); } catch (_) {
+                        gfError.innerText = 'پاسخ نامعتبر از سرور.';
+                        gfError.classList.remove('hidden');
+                        gfLoading.classList.add('hidden');
+                        return;
+                    }
 
                     if (!resp.ok) {
                         gfError.innerText = data.message || 'خطا در جستجو.';
@@ -455,14 +463,14 @@
                     gfResults.querySelectorAll('.gf-convert-btn').forEach(btn => {
                         btn.addEventListener('click', function() {
                             const family = this.dataset.family;
-                            const select = this.closest('.flex').querySelector('.gf-variant-select');
+                            const select = this.parentElement.querySelector('.gf-variant-select');
                             const variant = select.value;
                             convertGoogleFont(family, variant, this);
                         });
                     });
                 } catch (err) {
                     gfLoading.classList.add('hidden');
-                    gfError.innerText = 'خطای شبکه.';
+                    gfError.innerText = 'خطای شبکه: ' + err.message;
                     gfError.classList.remove('hidden');
                 }
             }
@@ -483,15 +491,17 @@
                         headers: {
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/zip',
+                            'Accept': 'application/zip, application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({ family, variant })
                     });
 
-                    if (!resp.ok) {
+                    const contentType = resp.headers.get('content-type') || '';
+
+                    if (!resp.ok || contentType.includes('application/json')) {
                         let msg = 'خطا در تبدیل فونت.';
-                        try { msg = (await resp.json()).message || msg; } catch (_) {}
+                        try { const j = await resp.json(); msg = j.message || msg; } catch (_) {}
                         throw new Error(msg);
                     }
 
