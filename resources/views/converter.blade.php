@@ -106,25 +106,24 @@
             <div class="bg-white rounded-3xl ring-2 ring-zinc-900/10 p-6 space-y-3">
                 @foreach($conversions as $conversion)
                 <div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">
-                    <div class="flex-1 min-w-0">
+                    <div class="flex flex-col items-start gap-2">
                         <p class="text-sm font-semibold text-zinc-700 truncate">{{ $conversion->font_names }}</p>
-                        <p class="text-xs text-zinc-400 mt-0.5">{{ $conversion->file_count }} فونت &middot; {{ $conversion->created_at->diffForHumans() }}</p>
+                        <p class="text-xs text-zinc-400">{{ $conversion->file_count }} فونت &bull; {{ $conversion->created_at->diffForHumans() }}</p>
                     </div>
-                    <a href="{{ route('converter.download', $conversion) }}" class="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors">
-                        <svg class="size-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g class="*:stroke-2" clip-path="url(#clip0_4418_9710)">
-                        <path d="M9 11V17L11 15" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 17L7 15" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M22 10H18C15 10 14 9 14 6V2L22 10Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
-                        </g>
-                        <defs>
-                        <clipPath id="clip0_4418_9710">
-                        <rect width="24" height="24" fill="white"/>
-                        </clipPath>
-                        </defs>
+                    <a href="{{ route('converter.download', $conversion) }}" class="flex items-center p-2.5 bg-zinc-900 hover:bg-zinc-800 rounded-[10px] transition-colors">
+                        <svg class="size-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g class="*:stroke-2" clip-path="url(#clip0_4418_9710)">
+                            <path d="M9 11V17L11 15" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 17L7 15" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 10H18C15 10 14 9 14 6V2L22 10Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+                            </g>
+                            <defs>
+                            <clipPath id="clip0_4418_9710">
+                            <rect width="24" height="24" fill="white"/>
+                            </clipPath>
+                            </defs>
                         </svg>
-                        دانلود
                     </a>
                 </div>
                 @endforeach
