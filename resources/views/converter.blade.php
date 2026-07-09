@@ -19,8 +19,9 @@
             }
         </style>
     </head>
-    <body class="bg-zinc-100 min-h-screen flex flex-col items-center justify-evenly p-6 font-vazirmatn">
-        <header class=" absolute top-0 right-0 p-6">
+    <body class="bg-zinc-100 min-h-screen flex flex-col items-center gap-10 justify-between p-6 font-vazirmatn">
+        <header class="mb-6 p-6 flex items-center w-full justify-between rounded-2xl ring-2 ring-zinc-800/15 bg-white">
+            <h1 class="text-xl sm:text-2xl font-extrabold text-zinc-800">تبدیل فونت به tcpdf</h1>
             <a target="_blank" href="https://github.com/chaveamin/tcpdf-font">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_4482_11501)">
@@ -34,10 +35,7 @@
                 </svg>
             </a>
         </header>
-        <div class="text-center">
-            <h1 class="text-xl sm:text-2xl font-extrabold text-zinc-800 rounded-2xl ring-2 ring-zinc-800/15 py-3 bg-white">تبدیل فونت به tcpdf</h1>
-            <p class="text-zinc-500 mt-6 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
-        </div>
+        <p class="text-zinc-500 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
         <main class="max-w-3xl w-full bg-white rounded-3xl ring-2 ring-zinc-900/10 p-8">
             <div id="error-container" class="hidden mb-4 p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg"></div>
             <form id="converter-form" action="{{ route('converter.process') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -101,6 +99,30 @@
                 </button>
             </form>
         </main>
+
+        @if($conversions->count())
+        <div class="max-w-3xl w-full mt-6">
+            <h2 class="text-lg font-bold text-zinc-800 mb-4">تاریخچه تبدیل‌ها</h2>
+            <div class="bg-white rounded-3xl ring-2 ring-zinc-900/10 p-6 space-y-3">
+                @foreach($conversions as $conversion)
+                <div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-zinc-700 truncate">{{ $conversion->font_names }}</p>
+                        <p class="text-xs text-zinc-400 mt-0.5">{{ $conversion->file_count }} فونت &middot; {{ $conversion->created_at->diffForHumans() }}</p>
+                    </div>
+                    <a href="{{ route('converter.download', $conversion) }}" class="shrink-0 mr-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors">
+                        <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        دانلود
+                    </a>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
         <script>
             const PREVIEW_FONT_NAME = 'preview-font';
             const defaultText = " این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند\nThe quick brown fox jumps over the lazy dog\n0123456789";
@@ -183,7 +205,7 @@
                     fileListEl.classList.add('hidden');
                     fileListEl.innerHTML = '';
                 } else {
-                    fileNameDisplay.innerHTML = '<span class="font-semibold text-green-600">' + files.length + ' فونت انتخاب شد</span>';
+                    fileNameDisplay.innerHTML = '<span class="font-semibold text-green-600">' + files.length + ' فونت</span>';
                     fileListEl.innerHTML = files.map(function(f, i) {
                         return '<div class="flex items-center justify-between px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-sm">' +
                             '<span class="text-zinc-700 truncate">' + (i + 1) + '. ' + f.name + '</span>' +
@@ -277,14 +299,8 @@
                         setTimeout(function() {
                             window.URL.revokeObjectURL(downloadUrl);
                             a.remove();
-                        }, 100);
-
-                        form.reset();
-                        cleanupPreviewFont();
-                        previewSection.classList.add('hidden');
-                        fileNameDisplay.innerHTML = 'برای آپلود کلیک کنید یا فایل‌های فونت را بکشید و رها کنید';
-                        fileListEl.classList.add('hidden');
-                        fileListEl.innerHTML = '';
+                            window.location.reload();
+                        }, 500);
                     } else {
                         let msg = 'خطای تبدیل.';
                         try {

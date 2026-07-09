@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ConversionHistory;
 use Illuminate\Http\Request;
 use ZipArchive;
 
@@ -9,7 +10,9 @@ class FontConverterController extends Controller
 {
     public function index()
     {
-        return view('converter');
+        $conversions = ConversionHistory::latest()->take(10)->get();
+
+        return view('converter', compact('conversions'));
     }
 
     public function convert(Request $request)
@@ -25,6 +28,7 @@ class FontConverterController extends Controller
         if (!file_exists($outDir)) { mkdir($outDir, 0775, true); }
 
         $convertedNames = [];
+        $originalNames = [];
         $errors = [];
 
         foreach ($request->file('font') as $file) {
@@ -53,6 +57,7 @@ class FontConverterController extends Controller
             }
 
             $convertedNames[] = $fontname;
+            $originalNames[] = $file->getClientOriginalName();
         }
 
         if (empty($convertedNames)) {
@@ -88,12 +93,31 @@ class FontConverterController extends Controller
             return response()->json(['message' => 'خطا در تبدیل فونت'], 500);
         }
 
-        $response = response()->download($zipPath)->deleteFileAfterSend(true);
+        ConversionHistory::create([
+            'font_names' => implode(', ', $originalNames),
+            'zip_path'   => 'fonts_out/' . $zipName . '.zip',
+            'file_count' => count($convertedNames),
+        ]);
+
+        $response = response()->download($zipPath);
 
         if ($errors) {
             $response->header('X-Conversion-Warnings', implode("\n", $errors));
         }
 
         return $response;
+    }
+
+    public function download(ConversionHistory $conversion)
+    {
+        $fullPath = $conversion->full_path;
+
+        if (!file_exists($fullPath)) {
+            abort(404, 'فایل یافت نشد.');
+        }
+
+        $zipName = basename($conversion->zip_path);
+
+        return response()->download($fullPath, $zipName);
     }
 }
