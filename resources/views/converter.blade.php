@@ -6,8 +6,20 @@
         <title>تبدیل فونت به tcpdf</title>
         <link rel="shortcut icon" href="{{ url('favicon.png') }}" type="image/x-icon">
         @vite('resources/css/app.css')
+        <style>
+            @keyframes indeterminate {
+                0% { transform: translateX(-100%); }
+                50% { transform: translateX(0%); }
+                100% { transform: translateX(100%); }
+            }
+            #progress-bar.indeterminate {
+                width: 40% !important;
+                animation: indeterminate 1.5s ease-in-out infinite !important;
+                transition: none !important;
+            }
+        </style>
     </head>
-    <body class="bg-zinc-50 min-h-screen flex items-center justify-center p-6 font-vazirmatn">
+    <body class="bg-zinc-100 min-h-screen flex flex-col items-center justify-evenly p-6 font-vazirmatn">
         <header class=" absolute top-0 right-0 p-6">
             <a target="_blank" href="https://github.com/chaveamin/tcpdf-font">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -22,34 +34,36 @@
                 </svg>
             </a>
         </header>
+        <div class="text-center">
+            <h1 class="text-xl sm:text-2xl font-extrabold text-zinc-800 rounded-2xl ring-2 ring-zinc-800/15 py-3 bg-white">تبدیل فونت به tcpdf</h1>
+            <p class="text-zinc-500 mt-6 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
+        </div>
         <main class="max-w-3xl w-full bg-white rounded-3xl ring-2 ring-zinc-900/10 p-8">
-            <div class="text-center mb-8">
-                <h1 class="text-xl sm:text-2xl font-extrabold text-zinc-800">تبدیل فونت به tcpdf</h1>
-                <p class="text-zinc-500 mt-6 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
-            </div>
-
             <div id="error-container" class="hidden mb-4 p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg"></div>
-
             <form id="converter-form" action="{{ route('converter.process') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 
                 <div class="flex items-center justify-center w-full">
-                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-zinc-300 border-dashed rounded-lg cursor-pointer bg-zinc-50 hover:bg-zinc-100 transition-colors">
+                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-zinc-300 border-dashed rounded-xl cursor-pointer bg-zinc-100 hover:bg-zinc-200/75 transition-colors">
                         <div class="flex flex-col items-center gap-y-4 justify-center p-4 text-center">
                             <svg class="size-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <g class="*:stroke-zinc-500" clip-path="url(#clip0_4482_3996)">
-                            <path d="M13.58 19.6199H16.52C19.26 19.6199 21.49 17.4 21.49 14.66C21.49 12.46 20.09 10.62 18.12 9.95996" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
-                            <path d="M13.38 10.8103C14.24 10.1103 15.33 9.69028 16.53 9.69028C17.09 9.69028 17.64 9.78028 18.13 9.96028C17.34 6.42028 14.18 3.78027 10.41 3.78027C7.59003 3.78027 5.11996 5.25028 3.70996 7.47028" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
-                            <path d="M5.65002 20.2098L5.67004 13.7598L8.82996 16.8098L5.67004 13.7598L2.5 16.8098" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-                            </g>
-                            <defs>
-                            <clipPath id="clip0_4482_3996">
-                            <rect width="24" height="24" fill="white"/>
-                            </clipPath>
-                            </defs>
+                                <g class="*:stroke-zinc-500" clip-path="url(#clip0_4482_3996)">
+                                <path d="M13.58 19.6199H16.52C19.26 19.6199 21.49 17.4 21.49 14.66C21.49 12.46 20.09 10.62 18.12 9.95996" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
+                                <path d="M13.38 10.8103C14.24 10.1103 15.33 9.69028 16.53 9.69028C17.09 9.69028 17.64 9.78028 18.13 9.96028C17.34 6.42028 14.18 3.78027 10.41 3.78027C7.59003 3.78027 5.11996 5.25028 3.70996 7.47028" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
+                                <path d="M5.65002 20.2098L5.67004 13.7598L8.82996 16.8098L5.67004 13.7598L2.5 16.8098" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                </g>
+                                <defs>
+                                <clipPath id="clip0_4482_3996">
+                                <rect width="24" height="24" fill="white"/>
+                                </clipPath>
+                                </defs>
                             </svg>
                             <p class="sm:text-base text-sm text-zinc-500" id="file-name-display">برای آپلود کلیک کنید یا فایل فونت را بکشید و رها کنید</p>
-                            <p class="sm:text-sm text-xs text-zinc-500">TTF (حداکثر 10 مگابایت)</p>
+                            <div class="flex gap-3 *:rounded-md *:px-2 *:py-1 *:bg-white *:ring *:ring-zinc-200">
+                                <p class="text-xs">ttf.</p>
+                                <p class="text-xs">حداکثر 10 مگابایت</p>
+                                <p class="text-xs">انتخاب چندین فونت</p>
+                            </div>
                         </div>
                         <input id="dropzone-file" type="file" name="font" class="hidden" accept=".ttf" required />
                     </label>
@@ -80,11 +94,14 @@
                     </div>
                 </div>
 
-                <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring bg-zinc-900 focus-visible:ring-4 focus-visible:ring-zinc-500/30 focus:ring-4 focus:ring-zinc-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-colors">
-                    <svg id="spinner" class="hidden w-5 h-5 text-white animate-spin" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                <div id="progress-container" class="hidden space-y-2">
+                    <div class="w-full h-2 bg-zinc-200 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="h-full bg-zinc-900 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
+                    </div>
+                    <p id="progress-status" class="text-xs text-zinc-500 text-center"></p>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring bg-zinc-900 hover:bg-zinc-800 hover:-translate-y-px focus-visible:ring-4 focus-visible:ring-zinc-500/30 focus:ring-4 focus:ring-zinc-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-all">
                     <span id="btn-text">تبدیل و دانلود فونت</span>
                 </button>
             </form>
@@ -171,74 +188,107 @@
                 }
             });
 
-            document.getElementById('converter-form').addEventListener('submit', async function(e) {
+            document.getElementById('converter-form').addEventListener('submit', function(e) {
                 e.preventDefault();
 
                 const form = this;
                 const submitBtn = document.getElementById('submit-btn');
-                const spinner = document.getElementById('spinner');
                 const btnText = document.getElementById('btn-text');
                 const errorContainer = document.getElementById('error-container');
+                const progressContainer = document.getElementById('progress-container');
+                const progressBar = document.getElementById('progress-bar');
+                const progressStatus = document.getElementById('progress-status');
 
                 submitBtn.disabled = true;
-                spinner.classList.remove('hidden');
-                btnText.innerText = 'در حال پردازش...';
                 errorContainer.classList.add('hidden');
+                progressContainer.classList.remove('hidden');
+                progressBar.style.width = '0%';
+                progressStatus.textContent = 'آپلود فایل...';
 
                 const formData = new FormData(form);
+                const xhr = new XMLHttpRequest();
 
-                try {
-                    const response = await fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/json, application/zip'
-                        }
-                    });
-
-                    if (!response.ok) {
-                        const errData = await response.json();
-                        throw new Error(errData.message || 'خطای تبدیل.');
-                    }
-
-                    const blob = await response.blob();
-
-                    const disposition = response.headers.get('Content-Disposition');
-                    let filename = 'tcpdf_fonts.zip';
-                    if (disposition && disposition.indexOf('attachment') !== -1) {
-                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-                        if (matches != null && matches[1]) {
-                            filename = matches[1].replace(/['"]/g, '');
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = pct + '%';
+                        if (pct < 100) {
+                            progressStatus.textContent = 'آپلود فایل... ' + pct + '%';
+                        } else {
+                            progressStatus.textContent = 'در حال تبدیل فونت...';
+                            progressBar.classList.remove('bg-zinc-900');
+                            progressBar.classList.add('bg-zinc-400', 'indeterminate');
                         }
                     }
+                });
 
-                    const downloadUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = downloadUrl;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
+                xhr.addEventListener('load', function() {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        progressBar.style.width = '100%';
+                        progressBar.classList.remove('bg-zinc-900');
+                        progressBar.classList.add('bg-green-600');
+                        progressStatus.textContent = 'دانلود فایل...';
 
-                    setTimeout(function() {
-                        window.URL.revokeObjectURL(downloadUrl);
-                        a.remove();
-                    }, 100);
+                        const blob = xhr.response;
+                        const disposition = xhr.getResponseHeader('Content-Disposition');
+                        let filename = 'tcpdf_fonts.zip';
+                        if (disposition && disposition.indexOf('attachment') !== -1) {
+                            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                            if (matches != null && matches[1]) {
+                                filename = matches[1].replace(/['"]/g, '');
+                            }
+                        }
 
-                    form.reset();
-                    cleanupPreviewFont();
-                    previewSection.classList.add('hidden');
-                    fileNameDisplay.innerHTML = 'برای آپلود کلیک کنید یا فایل فونت را بکشید و رها کنید';
+                        const downloadUrl = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = downloadUrl;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
 
-                } catch (error) {
-                    errorContainer.innerText = error.message;
+                        setTimeout(function() {
+                            window.URL.revokeObjectURL(downloadUrl);
+                            a.remove();
+                        }, 100);
+
+                        form.reset();
+                        cleanupPreviewFont();
+                        previewSection.classList.add('hidden');
+                        fileNameDisplay.innerHTML = 'برای آپلود کلیک کنید یا فایل فونت را بکشید و رها کنید';
+                    } else {
+                        let msg = 'خطای تبدیل.';
+                        try {
+                            const errData = JSON.parse(xhr.responseText);
+                            msg = errData.message || msg;
+                        } catch (_) {}
+                        errorContainer.innerText = msg;
+                        errorContainer.classList.remove('hidden');
+                    }
+                });
+
+                xhr.addEventListener('error', function() {
+                    errorContainer.innerText = 'خطای شبکه. اتصال اینترنت خود را بررسی کنید.';
                     errorContainer.classList.remove('hidden');
-                } finally {
+                });
+
+                xhr.addEventListener('loadend', function() {
                     submitBtn.disabled = false;
-                    spinner.classList.add('hidden');
+                    progressContainer.classList.add('hidden');
+                    progressBar.style.width = '0%';
+                    progressBar.style.transition = '';
+                    progressBar.style.animation = '';
+                    progressBar.classList.remove('bg-green-600', 'bg-zinc-400', 'indeterminate');
+                    progressBar.classList.add('bg-zinc-900');
+                    progressStatus.textContent = '';
                     btnText.innerText = 'تبدیل و دانلود فونت';
-                }
+                });
+
+                xhr.open('POST', form.action);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.setRequestHeader('Accept', 'application/json, application/zip');
+                xhr.responseType = 'blob';
+                xhr.send(formData);
             });
         </script>
     </body>
