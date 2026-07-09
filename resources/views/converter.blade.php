@@ -19,7 +19,7 @@
             }
         </style>
     </head>
-    <body class="bg-zinc-100 min-h-screen flex flex-col items-center gap-10 justify-between p-6 font-vazirmatn">
+    <body class="bg-zinc-100 min-h-screen flex flex-col items-center gap-10 p-6 font-vazirmatn">
         <header class="mb-6 p-6 flex items-center w-full justify-between rounded-2xl ring-2 ring-zinc-800/15 bg-white">
             <h1 class="text-xl sm:text-2xl font-extrabold text-zinc-800">تبدیل فونت به tcpdf</h1>
             <a target="_blank" href="https://github.com/chaveamin/tcpdf-font">
@@ -40,11 +40,11 @@
             <div id="error-container" class="hidden mb-4 p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg"></div>
 
             {{-- Tabs --}}
-            <div class="flex gap-2 mb-6 border-b border-zinc-200">
-                <button type="button" id="tab-upload" class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-zinc-900 text-zinc-900 -mb-px transition-colors">
+            <div class="flex gap-2 mb-6 border-b border-zinc-200 *:px-4 *:py-2.5 *:text-sm *:border-b-2 *:-mb-px *:transition-colors *:cursor-pointer">
+                <button type="button" id="tab-upload" class="tab-btn font-semibold border-zinc-900 text-zinc-900">
                     آپلود فایل
                 </button>
-                <button type="button" id="tab-google" class="tab-btn px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-zinc-400 hover:text-zinc-600 -mb-px transition-colors">
+                <button type="button" id="tab-google" class="tab-btn font-medium border-transparent text-zinc-400 hover:text-zinc-600">
                     گوگل فونت
                 </button>
             </div>
@@ -116,7 +116,7 @@
             {{-- Google Fonts Tab --}}
             <div id="panel-google" class="hidden space-y-5">
                 <div class="relative">
-                    <input id="gf-search" type="text" placeholder="جستجوی فونت..." class="w-full px-4 py-3 text-sm border border-zinc-200 rounded-xl bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors pr-10">
+                    <input id="gf-search" type="text" placeholder="جستجوی فونت..." class="w-full px-4 py-3 text-sm border border-zinc-200 rounded-xl bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-3 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors pr-10">
                     <svg class="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
@@ -128,7 +128,7 @@
 
                 <div id="gf-error" class="hidden p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg"></div>
 
-                <div id="gf-results" class="hidden space-y-2 max-h-96 overflow-y-auto"></div>
+                <div id="gf-results" class="hidden scrollbar-thin space-y-2 max-h-96 overflow-y-auto"></div>
 
                 <div id="gf-empty" class="hidden text-center py-8">
                     <p class="text-sm text-zinc-400">نتیجه‌ای یافت نشد.</p>
@@ -148,7 +148,7 @@
             <h2 class="text-lg font-bold text-zinc-800 mb-4">تاریخچه تبدیل‌ها</h2>
             <div class="bg-white rounded-3xl ring-2 ring-zinc-900/10 p-6 space-y-3">
                 @foreach($conversions as $conversion)
-                <div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">
+                <div class="flex items-center px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">
                     <div class="flex flex-col items-start gap-2">
                         <p class="text-sm font-semibold text-zinc-700 truncate">{{ $conversion->font_names }}</p>
                         <p class="text-xs text-zinc-400">{{ $conversion->file_count }} فونت &bull; {{ $conversion->created_at->diffForHumans() }}</p>
@@ -443,17 +443,15 @@
 
                     gfResults.innerHTML = data.map(font => {
                         const variants = font.variants.filter(v => /^\d+$/.test(v));
-                        return '<div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">' +
-                            '<div class="flex flex-col items-start gap-1">' +
+                        return '<div class="flex items-center px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">' +
+                            '<div class="flex items-center gap-4 w-54">' +
                                 '<p class="text-sm font-semibold text-zinc-700">' + font.family + '</p>' +
-                                '<p class="text-xs text-zinc-400">' + font.category + ' &bull; ' + variants.length + ' وزن</p>' +
+                                '<select class="gf-variant-select mr-auto px-2 py-1 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-400">' +
+                                    variants.map(v => '<option value="' + v + '">' + v + '</option>').join('') +
+                                '</select>' +
                             '</div>' +
-                            '<select class="gf-variant-select px-2 py-1 text-xs border border-zinc-200 rounded-lg bg-white text-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-400">' +
-                                variants.map(v => '<option value="' + v + '">' + v + '</option>').join('') +
-                            '</select>' +
-                            '<button type="button" class="gf-convert-btn shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors" data-family="' + font.family + '">' +
-                                '<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
-                                'تبدیل' +
+                            '<button title="تبدیل" type="button" class="gf-convert-btn cursor-pointer mr-auto flex items-center gap-x-2 text-white p-2 bg-zinc-900 hover:bg-zinc-800 rounded-xl transition-colors" data-family="' + font.family + '">' +
+                                '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_4482_220)"><path d="M8.5 12H5C3.62 12 2.5 10.88 2.5 9.5V4.5C2.5 3.12 3.62 2 5 2H8.5C9.88 2 11 3.12 11 4.5V9.5C11 10.88 9.88 12 8.5 12Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.5002 22.35H15.7002C14.3202 22.35 13.2002 21.23 13.2002 19.85V14.5C13.2002 13.12 14.3202 12 15.7002 12H19.5002C20.8802 12 22.0002 13.12 22.0002 14.5V19.85C22.0002 21.23 20.8802 22.35 19.5002 22.35Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 15.6399C2 19.1499 4.84999 21.9999 8.35999 21.9999L7.41003 20.4099" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.9996 8.36C21.9996 4.85 19.1496 2 15.6396 2L16.5896 3.59" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g><defs><clipPath id="clip0_4482_220"><rect width="24" height="24" fill="white"/></clipPath></defs></svg>' +
                             '</button>' +
                         '</div>';
                     }).join('');
@@ -478,7 +476,7 @@
             async function convertGoogleFont(family, variant, btn) {
                 const originalHtml = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<svg class="size-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"/></svg> تبدیل...';
+                btn.innerHTML = '<svg class="size-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"/></svg>';
 
                 gfProgress.classList.remove('hidden');
                 gfProgressBar.style.width = '30%';
