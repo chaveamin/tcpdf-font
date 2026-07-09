@@ -35,13 +35,49 @@
                 
                 <div class="flex items-center justify-center w-full">
                     <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-zinc-300 border-dashed rounded-lg cursor-pointer bg-zinc-50 hover:bg-zinc-100 transition-colors">
-                        <div class="flex flex-col items-center justify-center p-4 text-center">
-                            <svg aria-hidden="true" class="w-10 h-10 mb-3 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                            <p class="mb-4 sm:text-base text-sm text-zinc-500" id="file-name-display"><span class="font-semibold">برای آپلود کلیک کنید</span> یا فایل فونت را بکشید و رها کنید</p>
+                        <div class="flex flex-col items-center gap-y-4 justify-center p-4 text-center">
+                            <svg class="size-10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g class="*:stroke-zinc-500" clip-path="url(#clip0_4482_3996)">
+                            <path d="M13.58 19.6199H16.52C19.26 19.6199 21.49 17.4 21.49 14.66C21.49 12.46 20.09 10.62 18.12 9.95996" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
+                            <path d="M13.38 10.8103C14.24 10.1103 15.33 9.69028 16.53 9.69028C17.09 9.69028 17.64 9.78028 18.13 9.96028C17.34 6.42028 14.18 3.78027 10.41 3.78027C7.59003 3.78027 5.11996 5.25028 3.70996 7.47028" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round"/>
+                            <path d="M5.65002 20.2098L5.67004 13.7598L8.82996 16.8098L5.67004 13.7598L2.5 16.8098" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                            </g>
+                            <defs>
+                            <clipPath id="clip0_4482_3996">
+                            <rect width="24" height="24" fill="white"/>
+                            </clipPath>
+                            </defs>
+                            </svg>
+                            <p class="sm:text-base text-sm text-zinc-500" id="file-name-display">برای آپلود کلیک کنید یا فایل فونت را بکشید و رها کنید</p>
                             <p class="sm:text-sm text-xs text-zinc-500">TTF (حداکثر 10 مگابایت)</p>
                         </div>
                         <input id="dropzone-file" type="file" name="font" class="hidden" accept=".ttf" required />
                     </label>
+                </div>
+
+                <div id="preview-section" class="hidden space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs sm:text-sm text-zinc-500">پیش‌نمایش فونت</span>
+                        <span id="preview-font-name" class="text-xs sm:text-sm font-semibold text-zinc-700"></span>
+                    </div>
+
+                    <div id="preview-box" class="w-full p-5 border border-zinc-200 rounded-xl bg-zinc-50 text-zinc-800 leading-relaxed overflow-auto" style="font-size: 26px;">
+                        این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند
+                        <br>The quick brown fox jumps over the lazy dog
+                        <br>0123456789
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="flex-1">
+                            <label for="font-size-slider" class="block text-xs text-zinc-500 mb-1">اندازه فونت: <span id="font-size-value">26</span>px</label>
+                            <input id="font-size-slider" type="range" min="12" max="72" value="26" class="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="preview-custom-text" class="block text-xs text-zinc-500 mb-1">متن دلخواه</label>
+                        <input id="preview-custom-text" type="text" placeholder="متن خود را اینجا تایپ کنید..." class="w-full px-4 py-2.5 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors">
+                    </div>
                 </div>
 
                 <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring bg-zinc-900 focus-visible:ring-4 focus-visible:ring-zinc-500/30 focus:ring-4 focus:ring-zinc-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-colors">
@@ -54,28 +90,103 @@
             </form>
         </main>
         <script>
-            document.getElementById('dropzone-file').addEventListener('change', function(e) {
-                if(e.target.files.length > 0) {
-                    document.getElementById('file-name-display').innerHTML = '<span class="font-semibold text-green-600">' + e.target.files[0].name + '</span>';
+            const PREVIEW_FONT_NAME = 'preview-font';
+            const defaultText = " این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند\nThe quick brown fox jumps over the lazy dog\n0123456789";
+            let currentFontFace = null;
+
+            const dropzone = document.getElementById('dropzone-file');
+            const fileNameDisplay = document.getElementById('file-name-display');
+            const previewSection = document.getElementById('preview-section');
+            const previewBox = document.getElementById('preview-box');
+            const previewFontName = document.getElementById('preview-font-name');
+            const fontSizeSlider = document.getElementById('font-size-slider');
+            const fontSizeValue = document.getElementById('font-size-value');
+            const customTextInput = document.getElementById('preview-custom-text');
+
+            function cleanupPreviewFont() {
+                if (currentFontFace) {
+                    document.fonts.delete(currentFontFace);
+                    currentFontFace = null;
+                }
+            }
+
+            async function loadFontPreview(file) {
+                cleanupPreviewFont();
+
+                const arrayBuffer = await file.arrayBuffer();
+                currentFontFace = new FontFace(PREVIEW_FONT_NAME, arrayBuffer);
+                await currentFontFace.load();
+                document.fonts.add(currentFontFace);
+
+                previewBox.style.fontFamily = `'${PREVIEW_FONT_NAME}', sans-serif`;
+                previewBox.style.fontWeight = 'normal';
+                previewBox.style.fontStyle = 'normal';
+                previewBox.textContent = '';
+
+                const lines = defaultText.split('\n');
+                lines.forEach((line, i) => {
+                    previewBox.appendChild(document.createTextNode(line));
+                    if (i < lines.length - 1) previewBox.appendChild(document.createElement('br'));
+                });
+
+                previewFontName.textContent = file.name;
+                previewSection.classList.remove('hidden');
+
+                fontSizeSlider.value = 26;
+                fontSizeValue.textContent = '26';
+                previewBox.style.fontSize = '26px';
+                customTextInput.value = '';
+            }
+
+            dropzone.addEventListener('change', async function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    fileNameDisplay.innerHTML = '<span class="font-semibold text-green-600">' + file.name + '</span>';
+
+                    try {
+                        await loadFontPreview(file);
+                    } catch (err) {
+                        previewSection.classList.add('hidden');
+                        cleanupPreviewFont();
+                    }
+                }
+            });
+
+            fontSizeSlider.addEventListener('input', function() {
+                fontSizeValue.textContent = this.value;
+                previewBox.style.fontSize = this.value + 'px';
+            });
+
+            customTextInput.addEventListener('input', function() {
+                const text = this.value.trim();
+                if (text) {
+                    previewBox.textContent = text;
+                } else {
+                    previewBox.textContent = '';
+                    const lines = defaultText.split('\n');
+                    lines.forEach((line, i) => {
+                        previewBox.appendChild(document.createTextNode(line));
+                        if (i < lines.length - 1) previewBox.appendChild(document.createElement('br'));
+                    });
                 }
             });
 
             document.getElementById('converter-form').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
+
                 const form = this;
                 const submitBtn = document.getElementById('submit-btn');
                 const spinner = document.getElementById('spinner');
                 const btnText = document.getElementById('btn-text');
                 const errorContainer = document.getElementById('error-container');
-                
+
                 submitBtn.disabled = true;
                 spinner.classList.remove('hidden');
                 btnText.innerText = 'در حال پردازش...';
                 errorContainer.classList.add('hidden');
-                
+
                 const formData = new FormData(form);
-                
+
                 try {
                     const response = await fetch(form.action, {
                         method: 'POST',
@@ -85,19 +196,19 @@
                             'Accept': 'application/json, application/zip'
                         }
                     });
-                    
+
                     if (!response.ok) {
                         const errData = await response.json();
                         throw new Error(errData.message || 'خطای تبدیل.');
                     }
-                    
+
                     const blob = await response.blob();
-                    
+
                     const disposition = response.headers.get('Content-Disposition');
                     let filename = 'tcpdf_fonts.zip';
                     if (disposition && disposition.indexOf('attachment') !== -1) {
                         const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-                        if (matches != null && matches[1]) { 
+                        if (matches != null && matches[1]) {
                             filename = matches[1].replace(/['"]/g, '');
                         }
                     }
@@ -109,13 +220,17 @@
                     a.download = filename;
                     document.body.appendChild(a);
                     a.click();
-                    
-                    window.URL.revokeObjectURL(downloadUrl);
-                    a.remove();
-                    
+
+                    setTimeout(function() {
+                        window.URL.revokeObjectURL(downloadUrl);
+                        a.remove();
+                    }, 100);
+
                     form.reset();
-                    document.getElementById('file-name-display').innerHTML = '<span class="font-semibold">برای آپلود کلیک کنید</span> یا فایل فونت را بکشید و رها کنید';
-                    
+                    cleanupPreviewFont();
+                    previewSection.classList.add('hidden');
+                    fileNameDisplay.innerHTML = 'برای آپلود کلیک کنید یا فایل فونت را بکشید و رها کنید';
+
                 } catch (error) {
                     errorContainer.innerText = error.message;
                     errorContainer.classList.remove('hidden');
