@@ -58,16 +58,18 @@
                                 </clipPath>
                                 </defs>
                             </svg>
-                            <p class="sm:text-base text-sm text-zinc-500" id="file-name-display">برای آپلود کلیک کنید یا فایل فونت را بکشید و رها کنید</p>
+                            <p class="sm:text-base text-sm text-zinc-500" id="file-name-display">برای آپلود کلیک کنید یا فایل‌های فونت را بکشید و رها کنید</p>
                             <div class="flex gap-3 *:rounded-md *:px-2 *:py-1 *:bg-white *:ring *:ring-zinc-200">
                                 <p class="text-xs">ttf.</p>
                                 <p class="text-xs">حداکثر 10 مگابایت</p>
                                 <p class="text-xs">انتخاب چندین فونت</p>
                             </div>
                         </div>
-                        <input id="dropzone-file" type="file" name="font" class="hidden" accept=".ttf" required />
+                        <input id="dropzone-file" type="file" name="font[]" class="hidden" accept=".ttf" multiple required />
                     </label>
                 </div>
+
+                <div id="file-list" class="hidden space-y-2"></div>
 
                 <div id="preview-section" class="hidden space-y-4">
                     <div class="flex items-center justify-between">
@@ -75,17 +77,10 @@
                         <span id="preview-font-name" class="text-xs sm:text-sm font-semibold text-zinc-700"></span>
                     </div>
 
-                    <div id="preview-box" class="w-full p-5 border border-zinc-200 rounded-xl bg-zinc-50 text-zinc-800 leading-relaxed overflow-auto" style="font-size: 26px;">
+                    <div id="preview-box" class="w-full p-5 border border-zinc-200 rounded-xl bg-zinc-50 text-zinc-800 leading-relaxed overflow-auto" style="font-size: 18px;">
                         این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند
                         <br>The quick brown fox jumps over the lazy dog
                         <br>0123456789
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="flex-1">
-                            <label for="font-size-slider" class="block text-xs text-zinc-500 mb-1">اندازه فونت: <span id="font-size-value">26</span>px</label>
-                            <input id="font-size-slider" type="range" min="12" max="72" value="26" class="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900">
-                        </div>
                     </div>
 
                     <div>
@@ -102,7 +97,7 @@
                 </div>
 
                 <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring bg-zinc-900 hover:bg-zinc-800 hover:-translate-y-px focus-visible:ring-4 focus-visible:ring-zinc-500/30 focus:ring-4 focus:ring-zinc-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-all">
-                    <span id="btn-text">تبدیل و دانلود فونت</span>
+                    <span id="btn-text">تبدیل و دانلود فونت‌ها</span>
                 </button>
             </form>
         </main>
@@ -113,11 +108,10 @@
 
             const dropzone = document.getElementById('dropzone-file');
             const fileNameDisplay = document.getElementById('file-name-display');
+            const fileListEl = document.getElementById('file-list');
             const previewSection = document.getElementById('preview-section');
             const previewBox = document.getElementById('preview-box');
             const previewFontName = document.getElementById('preview-font-name');
-            const fontSizeSlider = document.getElementById('font-size-slider');
-            const fontSizeValue = document.getElementById('font-size-value');
             const customTextInput = document.getElementById('preview-custom-text');
 
             function cleanupPreviewFont() {
@@ -149,29 +143,62 @@
                 previewFontName.textContent = file.name;
                 previewSection.classList.remove('hidden');
 
-                fontSizeSlider.value = 26;
-                fontSizeValue.textContent = '26';
-                previewBox.style.fontSize = '26px';
+                previewBox.style.fontSize = '18px';
                 customTextInput.value = '';
             }
 
-            dropzone.addEventListener('change', async function(e) {
-                if (e.target.files.length > 0) {
-                    const file = e.target.files[0];
-                    fileNameDisplay.innerHTML = '<span class="font-semibold text-green-600">' + file.name + '</span>';
+            const dropzoneLabel = dropzone.closest('label');
 
-                    try {
-                        await loadFontPreview(file);
-                    } catch (err) {
-                        previewSection.classList.add('hidden');
-                        cleanupPreviewFont();
+            dropzoneLabel.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropzoneLabel.classList.add('border-zinc-500', 'bg-zinc-200/75');
+            });
+
+            dropzoneLabel.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                dropzoneLabel.classList.remove('border-zinc-500', 'bg-zinc-200/75');
+            });
+
+            dropzoneLabel.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropzoneLabel.classList.remove('border-zinc-500', 'bg-zinc-200/75');
+                if (e.dataTransfer.files.length > 0) {
+                    const dt = new DataTransfer();
+                    for (const f of e.dataTransfer.files) {
+                        if (f.name.toLowerCase().endsWith('.ttf')) {
+                            dt.items.add(f);
+                        }
                     }
+                    dropzone.files = dt.files;
+                    dropzone.dispatchEvent(new Event('change'));
                 }
             });
 
-            fontSizeSlider.addEventListener('input', function() {
-                fontSizeValue.textContent = this.value;
-                previewBox.style.fontSize = this.value + 'px';
+            dropzone.addEventListener('change', async function(e) {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+
+                if (files.length === 1) {
+                    fileNameDisplay.innerHTML = '<span class="font-semibold text-green-600">' + files[0].name + '</span>';
+                    fileListEl.classList.add('hidden');
+                    fileListEl.innerHTML = '';
+                } else {
+                    fileNameDisplay.innerHTML = '<span class="font-semibold text-green-600">' + files.length + ' فونت انتخاب شد</span>';
+                    fileListEl.innerHTML = files.map(function(f, i) {
+                        return '<div class="flex items-center justify-between px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-sm">' +
+                            '<span class="text-zinc-700 truncate">' + (i + 1) + '. ' + f.name + '</span>' +
+                            '<span class="text-zinc-400 text-xs shrink-0">' + (f.size / 1024).toFixed(1) + ' KB</span>' +
+                            '</div>';
+                    }).join('');
+                    fileListEl.classList.remove('hidden');
+                }
+
+                try {
+                    await loadFontPreview(files[0]);
+                } catch (err) {
+                    previewSection.classList.add('hidden');
+                    cleanupPreviewFont();
+                }
             });
 
             customTextInput.addEventListener('input', function() {
@@ -255,7 +282,9 @@
                         form.reset();
                         cleanupPreviewFont();
                         previewSection.classList.add('hidden');
-                        fileNameDisplay.innerHTML = 'برای آپلود کلیک کنید یا فایل فونت را بکشید و رها کنید';
+                        fileNameDisplay.innerHTML = 'برای آپلود کلیک کنید یا فایل‌های فونت را بکشید و رها کنید';
+                        fileListEl.classList.add('hidden');
+                        fileListEl.innerHTML = '';
                     } else {
                         let msg = 'خطای تبدیل.';
                         try {
@@ -281,7 +310,7 @@
                     progressBar.classList.remove('bg-green-600', 'bg-zinc-400', 'indeterminate');
                     progressBar.classList.add('bg-zinc-900');
                     progressStatus.textContent = '';
-                    btnText.innerText = 'تبدیل و دانلود فونت';
+                    btnText.innerText = 'تبدیل و دانلود فونت‌ها';
                 });
 
                 xhr.open('POST', form.action);

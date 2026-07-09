@@ -15,64 +15,85 @@ class FontConverterController extends Controller
     public function convert(Request $request)
     {
         $request->validate([
-            'font' => 'required|file|max:10240',
+            'font'   => 'required|array|min:1|max:20',
+            'font.*' => 'required|file|max:10240',
         ]);
 
-        $file = $request->file('font');
-        
-        $extension = strtolower($file->getClientOriginalExtension());
-        if (!in_array($extension, ['ttf'])) {
-            return response()->json(['message' => 'فقط فایل های ttf پشتیبانی میشوند.'], 422);
-        }
-
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeFontName = preg_replace('/[^a-z0-9]/', '', strtolower($originalName));
-        $tempFileName = $safeFontName . '.' . $extension;
-        
         $tempDir = storage_path('app/temp_fonts/');
         $outDir  = storage_path('app/fonts_out/');
-
         if (!file_exists($tempDir)) { mkdir($tempDir, 0775, true); }
         if (!file_exists($outDir)) { mkdir($outDir, 0775, true); }
 
-        $fontPath = $tempDir . $tempFileName;
+        $convertedNames = [];
+        $errors = [];
 
-        $file->move($tempDir, $tempFileName);
+        foreach ($request->file('font') as $file) {
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, ['ttf'])) {
+                $errors[] = $file->getClientOriginalName() . ': فقط فایل‌های ttf پشتیبانی می‌شوند.';
+                continue;
+            }
 
-        $fontname = \TCPDF_FONTS::addTTFfont($fontPath, 'TrueTypeUnicode', '', 32, $outDir);
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFontName = preg_replace('/[^a-z0-9]/', '', strtolower($originalName));
+            $tempFileName = $safeFontName . '.' . $extension;
+            $fontPath = $tempDir . $tempFileName;
 
-        if (file_exists($fontPath)) {
-            unlink($fontPath);
+            $file->move($tempDir, $tempFileName);
+
+            $fontname = \TCPDF_FONTS::addTTFfont($fontPath, 'TrueTypeUnicode', '', 32, $outDir);
+
+            if (file_exists($fontPath)) {
+                unlink($fontPath);
+            }
+
+            if (!$fontname) {
+                $errors[] = $file->getClientOriginalName() . ': تبدیل ناموفق بود.';
+                continue;
+            }
+
+            $convertedNames[] = $fontname;
         }
 
-        if (!$fontname) {
-            return response()->json(['message' => 'TCPDF failed to convert the font. Check cPanel directory permissions or PHP extensions.'], 500);
+        if (empty($convertedNames)) {
+            return response()->json(['message' => $errors ? implode("\n", $errors) : 'هیچ فایلی آپلود نشد.'], 422);
         }
-        
-        $zipPath = storage_path('app/fonts_out/' . $fontname . '.zip');
+
+        $zipName = count($convertedNames) === 1 ? $convertedNames[0] : 'tcpdf_fonts';
+        $zipPath = storage_path('app/fonts_out/' . $zipName . '.zip');
         $zip = new ZipArchive;
 
         if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
-            $filesToZip = [$fontname . '.php', $fontname . '.z', $fontname . '.ctg.z'];
-            
-            foreach ($filesToZip as $f) {
-                $fp = $outDir . $f;
-                if (file_exists($fp)) {
-                    $zip->addFile($fp, $f);
+            foreach ($convertedNames as $fontname) {
+                $filesToZip = [$fontname . '.php', $fontname . '.z', $fontname . '.ctg.z'];
+                foreach ($filesToZip as $f) {
+                    $fp = $outDir . $f;
+                    if (file_exists($fp)) {
+                        $zip->addFile($fp, $f);
+                    }
                 }
             }
             $zip->close();
-            
-            foreach ($filesToZip as $f) {
-                $fp = $outDir . $f;
-                if (file_exists($fp)) {
-                    unlink($fp);
+
+            foreach ($convertedNames as $fontname) {
+                $filesToZip = [$fontname . '.php', $fontname . '.z', $fontname . '.ctg.z'];
+                foreach ($filesToZip as $f) {
+                    $fp = $outDir . $f;
+                    if (file_exists($fp)) {
+                        unlink($fp);
+                    }
                 }
             }
         } else {
             return response()->json(['message' => 'خطا در تبدیل فونت'], 500);
         }
 
-        return response()->download($zipPath)->deleteFileAfterSend(true);
+        $response = response()->download($zipPath)->deleteFileAfterSend(true);
+
+        if ($errors) {
+            $response->header('X-Conversion-Warnings', implode("\n", $errors));
+        }
+
+        return $response;
     }
 }
