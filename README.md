@@ -16,7 +16,7 @@ php artisan serve
 - **گوگل فونت**: جستجو و تبدیل در میان هزاران فونت در [Google Fonts](https://fonts.google.com/)
 - **جلوگیری از استفاده بیش از حد** با [throttle middleware](https://laravel.com/docs/13.x/rate-limiting)
 
-## نحوه استفاده
+## نحوه استفاده در WHMCS
 
 - فونت `ttf` خو را آپلود کنید، ابزار آن را تبدیل و `3` فایل خروجی میدهد: `font.ct.z`, `font.z`, `font.php`
 - 3 فایل را در مسیر `whmcs_dir/vendor/tecnickcom/tcpdf/fonts` آپلود کنید.
