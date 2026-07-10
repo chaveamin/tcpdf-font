@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ConversionHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Http;
 use ZipArchive;
 
@@ -25,10 +26,9 @@ class FontConverterController extends Controller
         $visitorId = $this->getVisitorId($request);
         $conversions = ConversionHistory::where('visitor_id', $visitorId)->latest()->take(10)->get();
 
-        $response = view('converter', compact('conversions'));
-        $response->withCookie(cookie('visitor_id', $visitorId, 60 * 24 * 365));
+        Cookie::queue('visitor_id', $visitorId, 60 * 24 * 365);
 
-        return $response;
+        return view('converter', compact('conversions'));
     }
 
     public function convert(Request $request)
