@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ConversionHistory extends Model
 {
-    protected $fillable = ['font_names', 'zip_path', 'file_count'];
+    protected $fillable = ['visitor_id', 'font_names', 'zip_path', 'file_count'];
 
     public function getFullPathAttribute(): string
     {

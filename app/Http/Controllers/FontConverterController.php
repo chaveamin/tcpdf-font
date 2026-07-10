@@ -207,7 +207,9 @@ class FontConverterController extends Controller
         $tempDir = storage_path('app/temp_fonts/');
         $outDir  = storage_path('app/fonts_out/');
 
-        $zipName = count($convertedNames) === 1 ? $convertedNames[0] : 'tcpdf_fonts';
+        $zipName = count($convertedNames) === 1
+            ? strtolower(pathinfo($originalNames[0], PATHINFO_FILENAME))
+            : 'tcpdf_fonts';
         $zipPath = storage_path('app/fonts_out/' . $zipName . '.zip');
         $zip = new ZipArchive;
 
@@ -236,7 +238,7 @@ class FontConverterController extends Controller
             return response()->json(['message' => 'خطا در تبدیل فونت'], 500);
         }
 
-        ConversionHistory::create([
+        $conversion = ConversionHistory::create([
             'visitor_id' => $this->getVisitorId($request),
             'font_names' => implode(', ', $originalNames),
             'zip_path'   => 'fonts_out/' . $zipName . '.zip',
@@ -244,16 +246,17 @@ class FontConverterController extends Controller
         ]);
 
         if ($request->expectsJson() || $request->ajax()) {
-            $response = response(file_get_contents($zipPath), 200, [
-                'Content-Type' => 'application/octet-stream',
-                'Content-Disposition' => 'inline; filename="' . $zipName . '.zip"',
-            ]);
+            $data = [
+                'download_url' => route('converter.download', $conversion),
+                'font_names'   => implode(', ', $originalNames),
+                'file_count'   => count($convertedNames),
+            ];
 
             if ($errors) {
-                $response->header('X-Conversion-Warnings', implode("\n", $errors));
+                $data['warnings'] = $errors;
             }
 
-            return $response;
+            return response()->json($data);
         }
 
         $response = response()->download($zipPath);

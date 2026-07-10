@@ -94,52 +94,44 @@
                         <p id="progress-status" class="text-xs text-zinc-500 text-center"></p>
                     </div>
 
-                    <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring bg-zinc-900 hover:bg-zinc-800 hover:-translate-y-px focus-visible:ring-4 focus-visible:ring-zinc-500/30 focus:ring-4 focus:ring-zinc-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-all">
+                    <button type="submit" id="submit-btn" disabled class="w-full flex items-center justify-center gap-x-2 cursor-pointer sm:text-base text-sm text-white ring bg-zinc-900 hover:bg-zinc-800 hover:-translate-y-px focus-visible:ring-4 focus-visible:ring-zinc-500/30 focus:ring-4 focus:ring-zinc-500/30 font-medium sm:font-bold rounded-lg sm:rounded-xl py-2 sm:py-3 text-center transition-all disabled:opacity-40 disabled:cursor-not-allowed">
                         <span id="btn-text">تبدیل و دانلود فونت‌ها</span>
                     </button>
                 </form>
 
                 <div id="preview-section" class="hidden flex flex-col gap-y-12">
-                    <div class="space-y-3">
-                        <div id="font-info-box" class="w-full p-4 border border-zinc-200 rounded-xl bg-zinc-50 space-y-2">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-zinc-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                        <g class="*:stroke-2 *:stroke-zinc-400" clip-path="url(#clip0_4418_9133)">
-                                        <path d="M2.67004 7.17027V5.35027C2.67004 4.20027 3.60004 3.28027 4.74004 3.28027H19.26C20.41 3.28027 21.33 4.21027 21.33 5.35027V7.17027" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M12 20.7204V4.11035" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M8.06006 20.7197H15.9401" stroke-linecap="round" stroke-linejoin="round" />
-                                        </g>
-                                        <defs>
-                                        <clipPath id="clip0_4418_9133">
-                                        <rect width="24" height="24" fill="white"/>
-                                        </clipPath>
-                                        </defs>
-                                    </svg>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p id="font-info-name" class="text-sm font-semibold text-zinc-700 truncate">-</p>
-                                    <p id="font-info-size" class="text-xs text-zinc-400">-</p>
-                                </div>
+                    <div id="font-info-box" class="w-full p-4 border border-zinc-200 rounded-xl bg-zinc-50 space-y-2">
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-zinc-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <g class="*:stroke-2 *:stroke-zinc-400" clip-path="url(#clip0_4418_9133)">
+                                    <path d="M2.67004 7.17027V5.35027C2.67004 4.20027 3.60004 3.28027 4.74004 3.28027H19.26C20.41 3.28027 21.33 4.21027 21.33 5.35027V7.17027" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M12 20.7204V4.11035" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M8.06006 20.7197H15.9401" stroke-linecap="round" stroke-linejoin="round" />
+                                    </g>
+                                    <defs>
+                                    <clipPath id="clip0_4418_9133">
+                                    <rect width="24" height="24" fill="white"/>
+                                    </clipPath>
+                                    </defs>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p id="font-info-name" class="text-sm font-semibold text-zinc-700 truncate">-</p>
+                                <p id="font-info-size" class="text-xs text-zinc-400">-</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs sm:text-sm text-zinc-500 font-medium">پیش‌نمایش فونت</span>
-                            <span id="preview-font-name" class="text-xs sm:text-sm font-semibold text-zinc-700"></span>
-                        </div>
-
+                    <div class="flex flex-col items-start gap-y-3">
+                        <span class="text-xs sm:text-sm text-zinc-500 font-medium">پیش‌نمایش فونت</span>
                         <div id="preview-box" class="w-full p-5 border border-zinc-200 rounded-xl bg-zinc-50 text-zinc-800 leading-relaxed overflow-auto" style="font-size: 18px;">
                             این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند
                             <br>The quick brown fox jumps over the lazy dog
                             <br>0123456789
                         </div>
 
-                        <div>
-                            <input id="preview-custom-text" type="text" placeholder="متن خود را اینجا تایپ کنید..." class="w-full px-4 py-2.5 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors">
-                        </div>
+                        <input id="preview-custom-text" type="text" placeholder="متن خود را اینجا تایپ کنید..." class="w-full px-4 py-2.5 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors">
                     </div>
                 </div>
 
@@ -151,7 +143,7 @@
                         <p class="text-xs font-bold text-zinc-600 uppercase tracking-wider mb-3">استفاده در پروژه</p>
                         <div class="flex items-center justify-between bg-zinc-900 rounded-xl p-4 mb-3">
                             <button id="copy-usage-btn" type="button" class="px-3 py-1.5 text-xs font-semibold text-white bg-zinc-700 hover:bg-zinc-600 rounded-lg transition-colors">کپی</button>
-                            <code dir="ltr" id="usage-code" class="text-sm text-green-400 font-mono"></code>
+                            <code dir="ltr" id="usage-code" class="text-sm text-green-400 font-mono whitespace-pre-wrap"></code>
                         </div>
                         <p class="text-xs text-zinc-600 mb-5">فایل زیپ را از حالت فشرده خارج کرده و فایل‌ها را در پوشه /tcpdf/fonts/ کپی کنید.</p>
                         <a id="download-btn" href="#" class="w-fit flex items-center rounded-2xl px-4 py-3.5 text-sm font-semibold text-white bg-zinc-800">
@@ -263,7 +255,6 @@
             const fileListEl = document.getElementById('file-list');
             const previewSection = document.getElementById('preview-section');
             const previewBox = document.getElementById('preview-box');
-            const previewFontName = document.getElementById('preview-font-name');
             const customTextInput = document.getElementById('preview-custom-text');
             const fontInfoName = document.getElementById('font-info-name');
             const fontInfoSize = document.getElementById('font-info-size');
@@ -293,9 +284,8 @@
                     if (i < lines.length - 1) previewBox.appendChild(document.createElement('br'));
                 });
 
-                previewFontName.textContent = file.name;
                 fontInfoName.textContent = file.name;
-                fontInfoSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+                fontInfoSize.textContent = (file.size / 1024).toFixed(1) + ' کیلوبایت';
                 previewSection.classList.remove('hidden');
                 previewBox.style.fontSize = '18px';
                 customTextInput.value = '';
@@ -332,24 +322,26 @@
                     fileListEl.classList.add('hidden');
                     fileListEl.innerHTML = '';
                     fontInfoName.textContent = files[0].name;
-                    fontInfoSize.textContent = (files[0].size / 1024).toFixed(1) + ' KB';
+                    fontInfoSize.textContent = (files[0].size / 1024).toFixed(1) + ' کیلوبایت';
                 } else {
                     fileNameDisplay.innerHTML = '<span class="font-semibold text-green-600">' + files.length + ' فونت</span>';
                     fileListEl.innerHTML = files.map(function(f, i) {
                         return '<div class="flex items-center justify-between px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg text-sm">' +
                             '<span class="text-zinc-700 truncate">' + (i + 1) + '. ' + f.name + '</span>' +
-                            '<span class="text-zinc-400 text-xs shrink-0">' + (f.size / 1024).toFixed(1) + ' KB</span>' +
+                            '<span class="text-zinc-400 text-xs shrink-0">' + (f.size / 1024).toFixed(1) + ' کیلوبایت</span>' +
                             '</div>';
                     }).join('');
                     fileListEl.classList.remove('hidden');
                     fontInfoName.textContent = files.length + ' فونت انتخاب شده';
-                    fontInfoSize.textContent = files.reduce((sum, f) => sum + f.size, 0).toFixed(1) + ' KB (مجموع)';
+                    fontInfoSize.textContent = files.reduce((sum, f) => sum + f.size, 0).toFixed(1) + ' کیلوبایت (مجموع)';
                 }
 
                 try { await loadFontPreview(files[0]); } catch (err) {
                     previewSection.classList.add('hidden');
                     cleanupPreviewFont();
                 }
+
+                document.getElementById('submit-btn').disabled = false;
             });
 
             customTextInput.addEventListener('input', function() {
@@ -404,25 +396,21 @@
                         progressBar.classList.add('bg-green-600');
                         progressStatus.textContent = '';
 
-                        const blob = xhr.response;
-                        const disposition = xhr.getResponseHeader('Content-Disposition');
-                        let filename = 'tcpdf_fonts.zip';
-                        if (disposition && disposition.indexOf('attachment') !== -1) {
-                            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-                            if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-                        }
-
-                        const downloadUrl = window.URL.createObjectURL(blob);
+                        let data;
+                        try { data = JSON.parse(xhr.responseText); } catch (_) { data = {}; }
 
                         const files = Array.from(dropzone.files);
                         const firstFileName = files.length > 0 ? files[0].name.replace(/\.ttf$/i, '') : 'font';
                         const tcpdfName = firstFileName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+                        const filename = files.length === 1 ? tcpdfName + '.zip' : 'tcpdf_fonts.zip';
 
-                        document.getElementById('success-font-name').textContent = firstFileName + '.ttf با موفقیت تبدیل شد';
-                        document.getElementById('usage-code').textContent = "$pdf->setFont('" + tcpdfName + "', '', 10);";
+                        document.getElementById('success-font-name').textContent = files.length === 1 ? firstFileName + '.ttf با موفقیت تبدیل شد' : 'همه فونت‌ها با موفقیت تبدیل شدند';
+                        document.getElementById('usage-code').textContent = files.length === 1
+                            ? "$pdf->setFont('" + tcpdfName + "', '', 10);"
+                            : files.map(f => "$pdf->setFont('" + f.name.replace(/\.ttf$/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') + "', '', 10);").join("\n");
 
                         const downloadBtn = document.getElementById('download-btn');
-                        downloadBtn.href = downloadUrl;
+                        downloadBtn.href = data.download_url || '#';
                         downloadBtn.download = filename;
 
                         document.getElementById('preview-section').classList.add('hidden');
@@ -465,8 +453,7 @@
 
                 xhr.open('POST', form.action);
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                xhr.setRequestHeader('Accept', 'application/json, application/zip');
-                xhr.responseType = 'blob';
+                xhr.setRequestHeader('Accept', 'application/json');
                 xhr.send(new FormData(form));
             });
 
