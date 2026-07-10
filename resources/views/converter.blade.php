@@ -37,6 +37,11 @@
         </header>
         <p class="text-zinc-500 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
         <main class="max-w-3xl w-full bg-white rounded-3xl ring-2 ring-zinc-900/10 p-8">
+            @if($errors->has('throttle'))
+                <div class="mb-4 p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg">
+                    {{ $errors->first('throttle') }}
+                </div>
+            @endif
             <div id="error-container" class="hidden mb-4 p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg"></div>
 
             {{-- Tabs --}}
