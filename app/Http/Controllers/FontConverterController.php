@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ConvertFontJob;
 use App\Models\ConversionHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Http;
-use ZipArchive;
 
 class FontConverterController extends Controller
 {
@@ -39,12 +39,9 @@ class FontConverterController extends Controller
         ]);
 
         $tempDir = storage_path('app/temp_fonts/');
-        $outDir  = storage_path('app/fonts_out/');
         if (!file_exists($tempDir)) { mkdir($tempDir, 0775, true); }
-        if (!file_exists($outDir)) { mkdir($outDir, 0775, true); }
 
-        $convertedNames = [];
-        $originalNames = [];
+        $uploadFiles = [];
         $errors = [];
 
         foreach ($request->file('font') as $file) {
@@ -57,30 +54,37 @@ class FontConverterController extends Controller
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $safeFontName = preg_replace('/[^a-z0-9]/', '', strtolower($originalName));
             $tempFileName = $safeFontName . '.' . $extension;
-            $fontPath = $tempDir . $tempFileName;
 
             $file->move($tempDir, $tempFileName);
-
-            $fontname = \TCPDF_FONTS::addTTFfont($fontPath, 'TrueTypeUnicode', '', 32, $outDir);
-
-            if (file_exists($fontPath)) {
-                unlink($fontPath);
-            }
-
-            if (!$fontname) {
-                $errors[] = $file->getClientOriginalName() . ': تبدیل ناموفق بود.';
-                continue;
-            }
-
-            $convertedNames[] = $fontname;
-            $originalNames[] = $file->getClientOriginalName();
+            $uploadFiles[$file->getClientOriginalName()] = $tempFileName;
         }
 
-        if (empty($convertedNames)) {
-            return response()->json(['message' => $errors ? implode("\n", $errors) : 'هیچ فایلی آپلود نشد.'], 422);
+        if (empty($uploadFiles)) {
+            return response()->json(['message' => $errors ? implode("\n", $errors) : 'هیچ فایل TTF معتبری آپلود نشد.'], 422);
         }
 
-        return $this->createZipAndRespond($convertedNames, $originalNames, $errors, $request);
+        $conversion = ConversionHistory::create([
+            'visitor_id' => $this->getVisitorId($request),
+            'font_names' => implode(', ', array_keys($uploadFiles)),
+            'zip_path'   => '',
+            'file_count' => count($uploadFiles),
+            'status'     => ConversionHistory::STATUS_PENDING,
+        ]);
+
+        ConvertFontJob::dispatch($conversion, 'upload', $uploadFiles);
+
+        $data = [
+            'conversion_id' => $conversion->id,
+            'status_url'    => route('converter.status', $conversion),
+            'font_names'    => implode(', ', array_keys($uploadFiles)),
+            'file_count'    => count($uploadFiles),
+        ];
+
+        if ($errors) {
+            $data['warnings'] = $errors;
+        }
+
+        return response()->json($data, 202);
     }
 
     public function searchGoogleFonts(Request $request)
@@ -137,135 +141,51 @@ class FontConverterController extends Controller
             'variant' => 'required|string',
         ]);
 
-        $family = $request->input('family');
-        $variant = $request->input('variant');
-
-        $tempDir = storage_path('app/temp_fonts/');
-        $outDir  = storage_path('app/fonts_out/');
-        if (!file_exists($tempDir)) { mkdir($tempDir, 0775, true); }
-        if (!file_exists($outDir)) { mkdir($outDir, 0775, true); }
-
-        // Build the Google Fonts CSS URL to get the actual TTF URL
-        $cssUrl = "https://fonts.googleapis.com/css2?family=" . urlencode($family) . ":wght@" . $variant;
-
-        try {
-            $cssResponse = Http::timeout(15)->withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-            ])->get($cssUrl);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'خطا در اتصال به گوگل: ' . $e->getMessage()], 502);
-        }
-
-        if ($cssResponse->failed()) {
-            return response()->json(['message' => 'خطا در دریافت فونت از گوگل.'], 502);
-        }
-
-        // Parse CSS to find the TTF url
-        $css = $cssResponse->body();
-        preg_match_all('/url\((https:\/\/[^)]+\.ttf)\)/', $css, $matches);
-
-        if (empty($matches[1])) {
-            return response()->json(['message' => 'فایل TTF یافت نشد.'], 502);
-        }
-
-        $ttfUrl = $matches[1][0];
-
-        // Download the TTF
-        try {
-            $ttfResponse = Http::timeout(30)->get($ttfUrl);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'خطا در دانلود فونت: ' . $e->getMessage()], 502);
-        }
-
-        if ($ttfResponse->failed()) {
-            return response()->json(['message' => 'خطا در دانلود فایل فونت.'], 502);
-        }
-
-        $safeFontName = preg_replace('/[^a-z0-9]/', '', strtolower($family)) . '_' . preg_replace('/[^a-z0-9]/', '', strtolower($variant));
-        $tempFileName = $safeFontName . '.ttf';
-        $fontPath = $tempDir . $tempFileName;
-
-        file_put_contents($fontPath, $ttfResponse->body());
-
-        $fontname = \TCPDF_FONTS::addTTFfont($fontPath, 'TrueTypeUnicode', '', 32, $outDir);
-
-        if (file_exists($fontPath)) {
-            unlink($fontPath);
-        }
-
-        if (!$fontname) {
-            return response()->json(['message' => 'تبدیل فونت ناموفق بود.'], 500);
-        }
-
-        $originalName = $family . ' ' . $variant;
-
-        return $this->createZipAndRespond([$fontname], [$originalName], [], $request);
-    }
-
-    private function createZipAndRespond(array $convertedNames, array $originalNames, array $errors, Request $request)
-    {
-        $tempDir = storage_path('app/temp_fonts/');
-        $outDir  = storage_path('app/fonts_out/');
-
-        $zipName = count($convertedNames) === 1
-            ? strtolower(pathinfo($originalNames[0], PATHINFO_FILENAME))
-            : 'tcpdf_fonts';
-        $zipPath = storage_path('app/fonts_out/' . $zipName . '.zip');
-        $zip = new ZipArchive;
-
-        if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
-            foreach ($convertedNames as $fontname) {
-                $filesToZip = [$fontname . '.php', $fontname . '.z', $fontname . '.ctg.z'];
-                foreach ($filesToZip as $f) {
-                    $fp = $outDir . $f;
-                    if (file_exists($fp)) {
-                        $zip->addFile($fp, $f);
-                    }
-                }
-            }
-            $zip->close();
-
-            foreach ($convertedNames as $fontname) {
-                $filesToZip = [$fontname . '.php', $fontname . '.z', $fontname . '.ctg.z'];
-                foreach ($filesToZip as $f) {
-                    $fp = $outDir . $f;
-                    if (file_exists($fp)) {
-                        unlink($fp);
-                    }
-                }
-            }
-        } else {
-            return response()->json(['message' => 'خطا در تبدیل فونت'], 500);
-        }
-
         $conversion = ConversionHistory::create([
             'visitor_id' => $this->getVisitorId($request),
-            'font_names' => implode(', ', $originalNames),
-            'zip_path'   => 'fonts_out/' . $zipName . '.zip',
-            'file_count' => count($convertedNames),
+            'font_names' => $request->input('family') . ' ' . $request->input('variant'),
+            'zip_path'   => '',
+            'file_count' => 1,
+            'status'     => ConversionHistory::STATUS_PENDING,
         ]);
 
-        if ($request->expectsJson() || $request->ajax()) {
-            $data = [
-                'download_url' => route('converter.download', $conversion),
-                'font_names'   => implode(', ', $originalNames),
-                'file_count'   => count($convertedNames),
-            ];
+        ConvertFontJob::dispatch(
+            $conversion,
+            'google',
+            [],
+            $request->input('family'),
+            $request->input('variant'),
+        );
 
-            if ($errors) {
-                $data['warnings'] = $errors;
-            }
+        return response()->json([
+            'conversion_id' => $conversion->id,
+            'status_url'    => route('converter.status', $conversion),
+            'font_names'    => $conversion->font_names,
+        ], 202);
+    }
 
-            return response()->json($data);
+    public function status(ConversionHistory $conversion, Request $request)
+    {
+        if ($conversion->visitor_id !== $this->getVisitorId($request)) {
+            abort(403);
         }
 
-        $response = response()->download($zipPath);
+        $response = [
+            'status'        => $conversion->status,
+            'conversion_id' => $conversion->id,
+        ];
 
-        if ($errors) {
-            $response->header('X-Conversion-Warnings', implode("\n", $errors));
+        if ($conversion->isCompleted()) {
+            $response['download_url'] = route('converter.download', $conversion);
+            $response['font_names']   = $conversion->font_names;
+            $response['file_count']   = $conversion->file_count;
         }
 
-        return $response;
+        if ($conversion->isFailed()) {
+            $response['error_message'] = $conversion->error_message;
+        }
+
+        return response()->json($response);
     }
 
     public function download(ConversionHistory $conversion, Request $request)

@@ -16,7 +16,9 @@ class CleanOldConversions extends Command
         $hours = (int) $this->option('hours');
         $cutoff = now()->subHours($hours);
 
-        $old = ConversionHistory::where('created_at', '<', $cutoff)->get();
+        $old = ConversionHistory::where('created_at', '<', $cutoff)
+            ->whereNotIn('status', [ConversionHistory::STATUS_PENDING, ConversionHistory::STATUS_PROCESSING])
+            ->get();
 
         if ($old->isEmpty()) {
             $this->info('No old conversions found.');

@@ -197,13 +197,13 @@
         </main>
 
         @if($conversions->count())
-        <div class="max-w-3xl w-full mt-6">
+        <div class=" w-fit mt-6">
             <h2 class="text-lg font-bold text-zinc-800 mb-4">تاریخچه تبدیل‌ها</h2>
             <div class="bg-white rounded-3xl ring-2 ring-zinc-900/10 p-6 space-y-3">
                 @foreach($conversions as $conversion)
-                <div class="flex items-center px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">
+                <div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">
                     <div class="flex flex-col items-start gap-2">
-                        <p class="text-sm font-semibold text-zinc-700 truncate">{{ $conversion->font_names }}</p>
+                        <p class="text-sm font-semibold text-zinc-700 truncate w-full max-w-4/5">{{ $conversion->font_names }}</p>
                         <p class="text-xs text-zinc-400">{{ $conversion->file_count }} فونت &bull; {{ $conversion->created_at->diffForHumans() }}</p>
                     </div>
                     <a href="{{ route('converter.download', $conversion) }}" class="flex items-center p-2.5 bg-zinc-900 hover:bg-zinc-800 rounded-[10px] transition-colors">
@@ -244,6 +244,33 @@
 
             tabUpload.addEventListener('click', () => switchTab('upload'));
             tabGoogle.addEventListener('click', () => switchTab('google'));
+
+            // ── Polling Utility ──
+            function pollConversionStatus(statusUrl, { onComplete, onFailed }) {
+                const interval = setInterval(async () => {
+                    try {
+                        const resp = await fetch(statusUrl, {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                        });
+                        const data = await resp.json();
+
+                        if (data.status === 'completed') {
+                            clearInterval(interval);
+                            onComplete(data);
+                        } else if (data.status === 'failed') {
+                            clearInterval(interval);
+                            onFailed(data);
+                        }
+                    } catch (err) {
+                        // Network error — keep polling
+                    }
+                }, 2000);
+
+                setTimeout(() => {
+                    clearInterval(interval);
+                    onFailed({ error_message: 'تبدیل بیش از حد طول کشید.' });
+                }, 300000);
+            }
 
             // ── Upload Tab Logic ──
             const PREVIEW_FONT_NAME = 'preview-font';
@@ -391,39 +418,62 @@
 
                 xhr.addEventListener('load', function() {
                     if (xhr.status >= 200 && xhr.status < 300) {
-                        progressBar.style.width = '100%';
-                        progressBar.classList.remove('bg-zinc-900');
-                        progressBar.classList.add('bg-green-600');
-                        progressStatus.textContent = '';
-
                         let data;
                         try { data = JSON.parse(xhr.responseText); } catch (_) { data = {}; }
+
+                        progressBar.style.width = '100%';
+                        progressBar.classList.remove('bg-zinc-900');
+                        progressBar.classList.add('bg-zinc-400', 'indeterminate');
+                        progressStatus.textContent = 'در حال تبدیل فونت در صف...';
 
                         const files = Array.from(dropzone.files);
                         const firstFileName = files.length > 0 ? files[0].name.replace(/\.ttf$/i, '') : 'font';
                         const tcpdfName = firstFileName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
                         const filename = files.length === 1 ? tcpdfName + '.zip' : 'tcpdf_fonts.zip';
 
-                        document.getElementById('success-font-name').textContent = files.length === 1 ? firstFileName + '.ttf با موفقیت تبدیل شد' : 'همه فونت‌ها با موفقیت تبدیل شدند';
-                        document.getElementById('usage-code').textContent = files.length === 1
-                            ? "$pdf->setFont('" + tcpdfName + "', '', 10);"
-                            : files.map(f => "$pdf->setFont('" + f.name.replace(/\.ttf$/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') + "', '', 10);").join("\n");
+                        pollConversionStatus(data.status_url, {
+                            onComplete: function(result) {
+                                progressBar.style.width = '100%';
+                                progressBar.classList.remove('bg-zinc-400', 'indeterminate');
+                                progressBar.classList.add('bg-green-600');
+                                progressStatus.textContent = '';
 
-                        const downloadBtn = document.getElementById('download-btn');
-                        downloadBtn.href = data.download_url || '#';
-                        downloadBtn.download = filename;
+                                document.getElementById('success-font-name').textContent = files.length === 1 ? firstFileName + '.ttf با موفقیت تبدیل شد' : 'همه فونت‌ها با موفقیت تبدیل شدند';
+                                document.getElementById('usage-code').textContent = files.length === 1
+                                    ? "$pdf->setFont('" + tcpdfName + "', '', 10);"
+                                    : files.map(f => "$pdf->setFont('" + f.name.replace(/\.ttf$/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') + "', '', 10);").join("\n");
 
-                        document.getElementById('preview-section').classList.add('hidden');
-                        document.getElementById('success-box').classList.remove('hidden');
+                                const downloadBtn = document.getElementById('download-btn');
+                                downloadBtn.href = result.download_url || '#';
+                                downloadBtn.download = filename;
 
-                        progressContainer.classList.add('hidden');
-                        progressBar.style.width = '0%';
-                        progressBar.style.transition = '';
-                        progressBar.style.animation = '';
-                        progressBar.classList.remove('bg-green-600', 'bg-zinc-400', 'indeterminate');
-                        progressBar.classList.add('bg-zinc-900');
-                        btnText.innerText = 'تبدیل و دانلود فونت‌ها';
-                        submitBtn.disabled = false;
+                                document.getElementById('preview-section').classList.add('hidden');
+                                document.getElementById('success-box').classList.remove('hidden');
+
+                                progressContainer.classList.add('hidden');
+                                progressBar.style.width = '0%';
+                                progressBar.style.transition = '';
+                                progressBar.style.animation = '';
+                                progressBar.classList.remove('bg-green-600', 'bg-zinc-400', 'indeterminate');
+                                progressBar.classList.add('bg-zinc-900');
+                                btnText.innerText = 'تبدیل و دانلود فونت‌ها';
+                                submitBtn.disabled = false;
+                            },
+                            onFailed: function(result) {
+                                errorContainer.innerText = result.error_message || 'تبدیل فونت ناموفق بود.';
+                                errorContainer.classList.remove('hidden');
+
+                                progressContainer.classList.add('hidden');
+                                progressBar.style.width = '0%';
+                                progressBar.style.transition = '';
+                                progressBar.style.animation = '';
+                                progressBar.classList.remove('bg-green-600', 'bg-zinc-400', 'indeterminate');
+                                progressBar.classList.add('bg-zinc-900');
+                                progressStatus.textContent = '';
+                                btnText.innerText = 'تبدیل و دانلود فونت‌ها';
+                                submitBtn.disabled = false;
+                            }
+                        });
                     } else {
                         let msg = 'خطای تبدیل.';
                         try { msg = JSON.parse(xhr.responseText).message || msg; } catch (_) {}
@@ -521,7 +571,7 @@
 
                     gfResults.innerHTML = data.map(font => {
                         const variants = font.variants.filter(v => /^\d+$/.test(v));
-                        return '<div class="flex items-center px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">' +
+                        return '<div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">' +
                             '<div class="flex items-center gap-4 w-54">' +
                                 '<p class="text-sm font-semibold text-zinc-700">' + font.family + '</p>' +
                                 '<select class="gf-variant-select mr-auto px-2 py-1 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-400 w-20">' +
@@ -557,8 +607,8 @@
                 btn.innerHTML = '<svg class="size-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"/></svg>';
 
                 gfProgress.classList.remove('hidden');
-                gfProgressBar.style.width = '30%';
-                gfProgressStatus.textContent = 'دانلود فونت از گوگل...';
+                gfProgressBar.style.width = '20%';
+                gfProgressStatus.textContent = 'درخواست تبدیل...';
                 gfError.classList.add('hidden');
 
                 try {
@@ -567,46 +617,60 @@
                         headers: {
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
-                            'Accept': 'application/zip, application/json',
+                            'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
                         },
                         body: JSON.stringify({ family, variant })
                     });
 
-                    const contentType = resp.headers.get('content-type') || '';
-
-                    if (!resp.ok || contentType.includes('application/json')) {
+                    if (!resp.ok) {
                         let msg = 'خطا در تبدیل فونت.';
                         try { const j = await resp.json(); msg = j.message || msg; } catch (_) {}
                         throw new Error(msg);
                     }
 
-                    gfProgressBar.style.width = '80%';
-                    gfProgressStatus.textContent = 'تبدیل فونت...';
+                    const data = await resp.json();
+                    gfProgressBar.style.width = '40%';
+                    gfProgressStatus.textContent = 'تبدیل فونت در صف...';
 
-                    const blob = await resp.blob();
-                    const disposition = resp.headers.get('Content-Disposition');
-                    let filename = family.replace(/\s+/g, '_') + '.zip';
-                    if (disposition && disposition.indexOf('attachment') !== -1) {
-                        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-                        if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-                    }
+                    pollConversionStatus(data.status_url, {
+                        onComplete: async function(result) {
+                            gfProgressBar.style.width = '80%';
+                            gfProgressStatus.textContent = 'دانلود فایل...';
 
-                    gfProgressBar.style.width = '100%';
-                    gfProgressStatus.textContent = 'دانلود فایل...';
-
-                    const downloadUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = downloadUrl;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(function() {
-                        window.URL.revokeObjectURL(downloadUrl);
-                        a.remove();
-                        window.location.reload();
-                    }, 500);
+                            try {
+                                const zipResp = await fetch(result.download_url);
+                                const blob = await zipResp.blob();
+                                const downloadUrl = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.style.display = 'none';
+                                a.href = downloadUrl;
+                                a.download = family.replace(/\s+/g, '_') + '.zip';
+                                document.body.appendChild(a);
+                                a.click();
+                                setTimeout(function() {
+                                    window.URL.revokeObjectURL(downloadUrl);
+                                    a.remove();
+                                    window.location.reload();
+                                }, 500);
+                            } catch (dlErr) {
+                                gfError.innerText = 'خطا در دانلود فایل.';
+                                gfError.classList.remove('hidden');
+                                gfProgress.classList.add('hidden');
+                                gfProgressBar.style.width = '0%';
+                                btn.disabled = false;
+                                btn.innerHTML = originalHtml;
+                            }
+                        },
+                        onFailed: function(result) {
+                            gfError.innerText = result.error_message || 'تبدیل فونت ناموفق بود.';
+                            gfError.classList.remove('hidden');
+                            gfProgress.classList.add('hidden');
+                            gfProgressBar.style.width = '0%';
+                            btn.disabled = false;
+                            btn.innerHTML = originalHtml;
+                        }
+                    });
                 } catch (err) {
                     gfError.innerText = err.message;
                     gfError.classList.remove('hidden');
