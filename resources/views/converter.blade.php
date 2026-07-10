@@ -77,7 +77,7 @@
                                     </defs>
                                 </svg>
                                 <p class="sm:text-base text-sm text-zinc-500" id="file-name-display">برای آپلود کلیک کنید یا فایل‌های فونت را بکشید و رها کنید</p>
-                                <div class="flex gap-3 *:rounded-md *:px-2 *:py-1 *:bg-white *:ring *:ring-zinc-200">
+                                <div class="gap-3 hidden sm:flex *:rounded-md *:px-2 *:py-1 *:bg-white *:ring *:ring-zinc-200">
                                     <p class="text-xs">ttf.</p>
                                     <p class="text-xs">حداکثر 10 مگابایت</p>
                                     <p class="text-xs">انتخاب چندین فونت</p>
@@ -199,13 +199,13 @@
         </main>
 
         @if($conversions->count())
-        <div class="w-fit mt-6">
+        <div class="w-full max-w-3xl mt-6">
             <h2 class="text-lg font-bold text-zinc-800 mb-4">تاریخچه تبدیل‌ها</h2>
             <div class="bg-white rounded-3xl ring-2 ring-zinc-900/10 p-6 space-y-3">
                 @foreach($conversions as $conversion)
-                <div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">
+                <div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100">
                     <div class="flex flex-col items-start gap-2 truncate w-full max-w-4/5">
-                        <p class="text-sm font-semibold text-zinc-700 truncate w-11/12">{{ $conversion->font_names }}</p>
+                        <p class="text-sm font-semibold text-zinc-700">{{ $conversion->font_names }}</p>
                         <p class="text-xs text-zinc-400">{{ $conversion->file_count }} فونت &bull; {{ $conversion->created_at->diffForHumans() }}</p>
                     </div>
                     <a href="{{ route('converter.download', $conversion) }}" class="flex items-center p-2.5 bg-zinc-900 hover:bg-zinc-800 rounded-[10px] transition-colors">
@@ -229,7 +229,7 @@
         </div>
         @endif
 
-        <footer class="mt-auto pt-10 pb-4 w-full max-w-3xl text-center">
+        <footer class="mt-auto flex flex-col items-center gap-y-4 pt-10 pb-4 w-full max-w-3xl text-center">
             <div class="border-t border-zinc-200 pt-6 flex items-center gap-2 justify-center">
                 <a target="_blank" href="https://github.com/chaveamin/tcpdf-font" class="text-xs text-zinc-600">GitHub</a>
                 <span class="text-zinc-800">&bull;</span>
@@ -238,6 +238,7 @@
                     <a target="_blank" href="https://github.com/tecnickcom/TCPDF">TCPDF</a>
                 </p>
             </div>
+            <small>فونت‌های تبدیل شده بعد از 48 ساعت حذف میشوند.</small>
         </footer>
 
         <script>
@@ -584,7 +585,7 @@
 
                     gfResults.innerHTML = data.map(font => {
                         const variants = font.variants.filter(v => /^\d+$/.test(v));
-                        return '<div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">' +
+                        return '<div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100">' +
                             '<div class="flex items-center gap-4 w-54">' +
                                 '<p class="text-sm font-semibold text-zinc-700">' + font.family + '</p>' +
                                 '<select class="gf-variant-select mr-auto px-2 py-1 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-400 w-20">' +
