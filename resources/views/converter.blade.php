@@ -50,7 +50,7 @@
             </div>
 
             {{-- Upload Tab --}}
-            <div id="panel-upload">
+            <div class="flex flex-col gap-y-6" id="panel-upload">
                 <form id="converter-form" action="{{ route('converter.process') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                     @csrf
 
@@ -82,24 +82,6 @@
 
                     <div id="file-list" class="hidden space-y-2"></div>
 
-                    <div id="preview-section" class="hidden space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs sm:text-sm text-zinc-500">پیش‌نمایش فونت</span>
-                            <span id="preview-font-name" class="text-xs sm:text-sm font-semibold text-zinc-700"></span>
-                        </div>
-
-                        <div id="preview-box" class="w-full p-5 border border-zinc-200 rounded-xl bg-zinc-50 text-zinc-800 leading-relaxed overflow-auto" style="font-size: 18px;">
-                            این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند
-                            <br>The quick brown fox jumps over the lazy dog
-                            <br>0123456789
-                        </div>
-
-                        <div>
-                            <label for="preview-custom-text" class="block text-xs text-zinc-500 mb-1">متن دلخواه</label>
-                            <input id="preview-custom-text" type="text" placeholder="متن خود را اینجا تایپ کنید..." class="w-full px-4 py-2.5 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors">
-                        </div>
-                    </div>
-
                     <div id="progress-container" class="hidden space-y-2">
                         <div class="w-full h-2 bg-zinc-200 rounded-full overflow-hidden">
                             <div id="progress-bar" class="h-full bg-zinc-900 rounded-full transition-all duration-300 ease-out" style="width: 0%"></div>
@@ -111,14 +93,88 @@
                         <span id="btn-text">تبدیل و دانلود فونت‌ها</span>
                     </button>
                 </form>
+
+                <div id="preview-section" class="hidden flex flex-col gap-y-12">
+                    <div class="space-y-3">
+                        <div id="font-info-box" class="w-full p-4 border border-zinc-200 rounded-xl bg-zinc-50 space-y-2">
+                            <div class="flex items-center gap-3">
+                                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-zinc-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <g class="*:stroke-2 *:stroke-zinc-400" clip-path="url(#clip0_4418_9133)">
+                                        <path d="M2.67004 7.17027V5.35027C2.67004 4.20027 3.60004 3.28027 4.74004 3.28027H19.26C20.41 3.28027 21.33 4.21027 21.33 5.35027V7.17027" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M12 20.7204V4.11035" stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M8.06006 20.7197H15.9401" stroke-linecap="round" stroke-linejoin="round" />
+                                        </g>
+                                        <defs>
+                                        <clipPath id="clip0_4418_9133">
+                                        <rect width="24" height="24" fill="white"/>
+                                        </clipPath>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p id="font-info-name" class="text-sm font-semibold text-zinc-700 truncate">-</p>
+                                    <p id="font-info-size" class="text-xs text-zinc-400">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs sm:text-sm text-zinc-500 font-medium">پیش‌نمایش فونت</span>
+                            <span id="preview-font-name" class="text-xs sm:text-sm font-semibold text-zinc-700"></span>
+                        </div>
+
+                        <div id="preview-box" class="w-full p-5 border border-zinc-200 rounded-xl bg-zinc-50 text-zinc-800 leading-relaxed overflow-auto" style="font-size: 18px;">
+                            این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند
+                            <br>The quick brown fox jumps over the lazy dog
+                            <br>0123456789
+                        </div>
+
+                        <div>
+                            <input id="preview-custom-text" type="text" placeholder="متن خود را اینجا تایپ کنید..." class="w-full px-4 py-2.5 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="success-box" class="hidden p-6 bg-zinc-100 rounded-2xl ring ring-zinc-800/15">
+                    <div class="flex items-center gap-3 mb-6">
+                        <h3 id="success-font-name" class="text-lg font-bold text-zinc-800"></h3>
+                    </div>
+                    <div class="border-t border-zinc-700 pt-5">
+                        <p class="text-xs font-bold text-zinc-600 uppercase tracking-wider mb-3">استفاده در پروژه</p>
+                        <div class="flex items-center justify-between bg-zinc-900 rounded-xl p-4 mb-3">
+                            <button id="copy-usage-btn" type="button" class="px-3 py-1.5 text-xs font-semibold text-white bg-zinc-700 hover:bg-zinc-600 rounded-lg transition-colors">کپی</button>
+                            <code dir="ltr" id="usage-code" class="text-sm text-green-400 font-mono"></code>
+                        </div>
+                        <p class="text-xs text-zinc-600 mb-5">فایل زیپ را از حالت فشرده خارج کرده و فایل‌ها را در پوشه /tcpdf/fonts/ کپی کنید.</p>
+                        <a id="download-btn" href="#" class="w-fit flex items-center rounded-2xl px-4 py-3.5 text-sm font-semibold text-white bg-zinc-800">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g clip-path="url(#clip0_4418_9710)">
+                                <path d="M9 11V17L11 15" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 17L7 15" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M22 10H18C15 10 14 9 14 6V2L22 10Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </g>
+                                <defs>
+                                <clipPath id="clip0_4418_9710">
+                                <rect width="24" height="24" fill="white"/>
+                                </clipPath>
+                            </defs>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
             </div>
 
             {{-- Google Fonts Tab --}}
             <div id="panel-google" class="hidden space-y-5">
                 <div class="relative">
                     <input id="gf-search" type="text" placeholder="جستجوی فونت..." class="w-full px-4 py-3 text-sm border border-zinc-200 rounded-xl bg-white text-zinc-800 placeholder-zinc-400 focus:outline-none focus:ring-3 focus:ring-zinc-500/30 focus:border-zinc-400 transition-colors pr-10">
-                    <svg class="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    <svg class="absolute right-3 top-1/2 -translate-y-1/2 size-5 text-zinc-400 *:stroke-current stroke-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 20C15.9706 20 20 15.9706 20 11C20 6.02944 15.9706 2 11 2C6.02944 2 2 6.02944 2 11C2 15.9706 6.02944 20 11 20Z" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18.8978 20.4629C19.1822 22.1242 20.3546 22.4637 21.4838 21.2188C22.5159 20.0805 22.1195 18.9585 20.5969 18.7278C19.4713 18.5472 18.7052 19.3313 18.8978 20.4629Z" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
 
@@ -204,6 +260,8 @@
             const previewBox = document.getElementById('preview-box');
             const previewFontName = document.getElementById('preview-font-name');
             const customTextInput = document.getElementById('preview-custom-text');
+            const fontInfoName = document.getElementById('font-info-name');
+            const fontInfoSize = document.getElementById('font-info-size');
 
             function cleanupPreviewFont() {
                 if (currentFontFace) {
@@ -231,6 +289,8 @@
                 });
 
                 previewFontName.textContent = file.name;
+                fontInfoName.textContent = file.name;
+                fontInfoSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
                 previewSection.classList.remove('hidden');
                 previewBox.style.fontSize = '18px';
                 customTextInput.value = '';
@@ -266,6 +326,8 @@
                     fileNameDisplay.innerHTML = '<span class="font-semibold text-green-600">' + files[0].name + '</span>';
                     fileListEl.classList.add('hidden');
                     fileListEl.innerHTML = '';
+                    fontInfoName.textContent = files[0].name;
+                    fontInfoSize.textContent = (files[0].size / 1024).toFixed(1) + ' KB';
                 } else {
                     fileNameDisplay.innerHTML = '<span class="font-semibold text-green-600">' + files.length + ' فونت</span>';
                     fileListEl.innerHTML = files.map(function(f, i) {
@@ -275,6 +337,8 @@
                             '</div>';
                     }).join('');
                     fileListEl.classList.remove('hidden');
+                    fontInfoName.textContent = files.length + ' فونت انتخاب شده';
+                    fontInfoSize.textContent = files.reduce((sum, f) => sum + f.size, 0).toFixed(1) + ' KB (مجموع)';
                 }
 
                 try { await loadFontPreview(files[0]); } catch (err) {
@@ -333,7 +397,7 @@
                         progressBar.style.width = '100%';
                         progressBar.classList.remove('bg-zinc-900');
                         progressBar.classList.add('bg-green-600');
-                        progressStatus.textContent = 'دانلود فایل...';
+                        progressStatus.textContent = '';
 
                         const blob = xhr.response;
                         const disposition = xhr.getResponseHeader('Content-Disposition');
@@ -344,17 +408,29 @@
                         }
 
                         const downloadUrl = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = downloadUrl;
-                        a.download = filename;
-                        document.body.appendChild(a);
-                        a.click();
-                        setTimeout(function() {
-                            window.URL.revokeObjectURL(downloadUrl);
-                            a.remove();
-                            window.location.reload();
-                        }, 500);
+
+                        const files = Array.from(dropzone.files);
+                        const firstFileName = files.length > 0 ? files[0].name.replace(/\.ttf$/i, '') : 'font';
+                        const tcpdfName = firstFileName.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+
+                        document.getElementById('success-font-name').textContent = firstFileName + '.ttf با موفقیت تبدیل شد';
+                        document.getElementById('usage-code').textContent = "$pdf->setFont('" + tcpdfName + "', '', 10);";
+
+                        const downloadBtn = document.getElementById('download-btn');
+                        downloadBtn.href = downloadUrl;
+                        downloadBtn.download = filename;
+
+                        document.getElementById('preview-section').classList.add('hidden');
+                        document.getElementById('success-box').classList.remove('hidden');
+
+                        progressContainer.classList.add('hidden');
+                        progressBar.style.width = '0%';
+                        progressBar.style.transition = '';
+                        progressBar.style.animation = '';
+                        progressBar.classList.remove('bg-green-600', 'bg-zinc-400', 'indeterminate');
+                        progressBar.classList.add('bg-zinc-900');
+                        btnText.innerText = 'تبدیل و دانلود فونت‌ها';
+                        submitBtn.disabled = false;
                     } else {
                         let msg = 'خطای تبدیل.';
                         try { msg = JSON.parse(xhr.responseText).message || msg; } catch (_) {}
@@ -369,15 +445,17 @@
                 });
 
                 xhr.addEventListener('loadend', function() {
-                    submitBtn.disabled = false;
-                    progressContainer.classList.add('hidden');
-                    progressBar.style.width = '0%';
-                    progressBar.style.transition = '';
-                    progressBar.style.animation = '';
-                    progressBar.classList.remove('bg-green-600', 'bg-zinc-400', 'indeterminate');
-                    progressBar.classList.add('bg-zinc-900');
-                    progressStatus.textContent = '';
-                    btnText.innerText = 'تبدیل و دانلود فونت‌ها';
+                    if (progressStatus.textContent !== '') {
+                        submitBtn.disabled = false;
+                        progressContainer.classList.add('hidden');
+                        progressBar.style.width = '0%';
+                        progressBar.style.transition = '';
+                        progressBar.style.animation = '';
+                        progressBar.classList.remove('bg-green-600', 'bg-zinc-400', 'indeterminate');
+                        progressBar.classList.add('bg-zinc-900');
+                        progressStatus.textContent = '';
+                        btnText.innerText = 'تبدیل و دانلود فونت‌ها';
+                    }
                 });
 
                 xhr.open('POST', form.action);
@@ -385,6 +463,14 @@
                 xhr.setRequestHeader('Accept', 'application/json, application/zip');
                 xhr.responseType = 'blob';
                 xhr.send(new FormData(form));
+            });
+
+            document.getElementById('copy-usage-btn').addEventListener('click', function() {
+                const code = document.getElementById('usage-code').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    this.textContent = 'کپی شد';
+                    setTimeout(() => { this.textContent = 'کپی'; }, 2000);
+                });
             });
 
             // ── Google Fonts Tab Logic ──
@@ -446,7 +532,7 @@
                         return '<div class="flex items-center px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">' +
                             '<div class="flex items-center gap-4 w-54">' +
                                 '<p class="text-sm font-semibold text-zinc-700">' + font.family + '</p>' +
-                                '<select class="gf-variant-select mr-auto px-2 py-1 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-400">' +
+                                '<select class="gf-variant-select mr-auto px-2 py-1 text-sm border border-zinc-200 rounded-lg bg-white text-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-400 w-20">' +
                                     variants.map(v => '<option value="' + v + '">' + v + '</option>').join('') +
                                 '</select>' +
                             '</div>' +
