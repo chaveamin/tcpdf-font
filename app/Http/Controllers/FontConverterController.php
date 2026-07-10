@@ -202,6 +202,10 @@ class FontConverterController extends Controller
 
         $zipName = basename($conversion->zip_path);
 
-        return response()->download($fullPath, $zipName);
+        return response()->file($fullPath, [
+            'Content-Type'        => 'application/zip',
+            'Content-Disposition' => 'inline; filename="' . $zipName . '"',
+            'Cache-Control'       => 'no-store',
+        ]);
     }
 }

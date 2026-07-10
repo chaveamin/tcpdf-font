@@ -148,7 +148,7 @@
                             <code dir="ltr" id="usage-code" class="text-sm text-green-400 font-mono whitespace-pre-wrap"></code>
                         </div>
                         <p class="text-xs text-zinc-600 mb-5">فایل زیپ را از حالت فشرده خارج کرده و فایل‌ها را در پوشه /tcpdf/fonts/ کپی کنید.</p>
-                        <a id="download-btn" href="#" class="w-fit flex items-center rounded-2xl px-4 py-3.5 text-sm font-semibold text-white bg-zinc-800">
+                        <a id="download-btn" href="javascript:void(0)" class="w-fit flex items-center rounded-2xl px-4 py-3.5 text-sm font-semibold text-white bg-zinc-800 cursor-pointer">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g clip-path="url(#clip0_4418_9710)">
                                 <path d="M9 11V17L11 15" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -208,7 +208,7 @@
                         <p class="text-sm font-semibold text-zinc-700">{{ $conversion->font_names }}</p>
                         <p class="text-xs text-zinc-400">{{ $conversion->file_count }} فونت &bull; {{ $conversion->created_at->diffForHumans() }}</p>
                     </div>
-                    <a href="{{ route('converter.download', $conversion) }}" class="flex items-center p-2.5 bg-zinc-900 hover:bg-zinc-800 rounded-[10px] transition-colors">
+                    <a href="javascript:void(0)" data-download-url="{{ route('converter.download', $conversion) }}" data-download-name="{{ basename($conversion->zip_path) }}" class="history-download-btn flex items-center p-2.5 bg-zinc-900 hover:bg-zinc-800 rounded-[10px] transition-colors cursor-pointer">
                         <svg class="size-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <g class="*:stroke-2" clip-path="url(#clip0_4418_9710)">
                             <path d="M9 11V17L11 15" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
@@ -242,7 +242,7 @@
         </footer>
 
         <script>
-            // ── Tabs ──
+            // -- Tabs --
             const tabUpload = document.getElementById('tab-upload');
             const tabGoogle = document.getElementById('tab-google');
             const panelUpload = document.getElementById('panel-upload');
@@ -259,7 +259,7 @@
             tabUpload.addEventListener('click', () => switchTab('upload'));
             tabGoogle.addEventListener('click', () => switchTab('google'));
 
-            // ── Polling Utility ──
+            // -- Polling Utility --
             function pollConversionStatus(statusUrl, { onComplete, onFailed }) {
                 const interval = setInterval(async () => {
                     try {
@@ -286,7 +286,7 @@
                 }, 300000);
             }
 
-            // ── Upload Tab Logic ──
+            // -- Upload Tab Logic --
             const PREVIEW_FONT_NAME = 'preview-font';
             const defaultText = " این یک نوشته آزمایشی است که به برنامه‌نویسان کمک میکند\nThe quick brown fox jumps over the lazy dog\n0123456789";
             let currentFontFace = null;
@@ -458,8 +458,20 @@
                                     : files.map(f => "$pdf->setFont('" + f.name.replace(/\.ttf$/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') + "', '', 10);").join("\n");
 
                                 const downloadBtn = document.getElementById('download-btn');
-                                downloadBtn.href = result.download_url || '#';
-                                downloadBtn.download = filename;
+                                downloadBtn.onclick = function() {
+                                    fetch(result.download_url, {
+                                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                                    }).then(r => r.blob()).then(blob => {
+                                        const url = window.URL.createObjectURL(blob);
+                                        const a = document.createElement('a');
+                                        a.style.display = 'none';
+                                        a.href = url;
+                                        a.download = filename;
+                                        document.body.appendChild(a);
+                                        a.click();
+                                        setTimeout(function() { window.URL.revokeObjectURL(url); a.remove(); }, 100);
+                                    });
+                                };
 
                                 document.getElementById('preview-section').classList.add('hidden');
                                 document.getElementById('success-box').classList.remove('hidden');
@@ -529,7 +541,28 @@
                 });
             });
 
-            // ── Google Fonts Tab Logic ──
+            // -- History Download (blob, bypasses IDM) --
+            document.querySelectorAll('.history-download-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.dataset.downloadUrl;
+                    const name = this.dataset.downloadName;
+                    fetch(url, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    }).then(r => r.blob()).then(blob => {
+                        const blobUrl = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = blobUrl;
+                        a.download = name;
+                        document.body.appendChild(a);
+                        a.click();
+                        setTimeout(function() { window.URL.revokeObjectURL(blobUrl); a.remove(); }, 100);
+                    });
+                });
+            });
+
+            // -- Google Fonts Tab Logic --
             const gfSearch = document.getElementById('gf-search');
             const gfLoading = document.getElementById('gf-loading');
             const gfError = document.getElementById('gf-error');
@@ -653,7 +686,9 @@
                             gfProgressStatus.textContent = 'دانلود فایل...';
 
                             try {
-                                const zipResp = await fetch(result.download_url);
+                                const zipResp = await fetch(result.download_url, {
+                                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                                });
                                 const blob = await zipResp.blob();
                                 const downloadUrl = window.URL.createObjectURL(blob);
                                 const a = document.createElement('a');
