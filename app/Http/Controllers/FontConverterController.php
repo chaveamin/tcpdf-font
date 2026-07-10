@@ -243,6 +243,19 @@ class FontConverterController extends Controller
             'file_count' => count($convertedNames),
         ]);
 
+        if ($request->expectsJson() || $request->ajax()) {
+            $response = response(file_get_contents($zipPath), 200, [
+                'Content-Type' => 'application/octet-stream',
+                'Content-Disposition' => 'inline; filename="' . $zipName . '.zip"',
+            ]);
+
+            if ($errors) {
+                $response->header('X-Conversion-Warnings', implode("\n", $errors));
+            }
+
+            return $response;
+        }
+
         $response = response()->download($zipPath);
 
         if ($errors) {

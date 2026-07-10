@@ -145,9 +145,9 @@
 
                 <div id="success-box" class="hidden p-6 bg-zinc-100 rounded-2xl ring ring-zinc-800/15">
                     <div class="flex items-center gap-3 mb-6">
-                        <h3 id="success-font-name" class="text-lg font-bold text-zinc-800"></h3>
+                        <h3 id="success-font-name" class="text-base font-bold text-zinc-800"></h3>
                     </div>
-                    <div class="border-t border-zinc-700 pt-5">
+                    <div class="border-t border-zinc-300 pt-5">
                         <p class="text-xs font-bold text-zinc-600 uppercase tracking-wider mb-3">استفاده در پروژه</p>
                         <div class="flex items-center justify-between bg-zinc-900 rounded-xl p-4 mb-3">
                             <button id="copy-usage-btn" type="button" class="px-3 py-1.5 text-xs font-semibold text-white bg-zinc-700 hover:bg-zinc-600 rounded-lg transition-colors">کپی</button>
