@@ -19,7 +19,7 @@
             }
         </style>
     </head>
-    <body class="bg-zinc-100 min-h-screen flex flex-col items-center gap-10 p-6 font-vazirmatn">
+    <body class="bg-zinc-100 min-h-screen flex flex-col items-center gap-10 p-6 select-none font-pelak">
         <header class="mb-6 p-6 flex items-center w-full justify-between rounded-2xl ring-2 ring-zinc-800/15 bg-white">
             <h1 class="text-xl sm:text-2xl font-extrabold text-zinc-800">تبدیل فونت به tcpdf</h1>
             <a target="_blank" href="https://github.com/chaveamin/tcpdf-font">
@@ -35,7 +35,9 @@
                 </svg>
             </a>
         </header>
+
         <p class="text-zinc-500 sm:text-base text-sm">برای دریافت فایل‌های سازگار با TCPDF فونت خود را با فرمت ttf آپلود کنید.</p>
+
         <main class="max-w-3xl w-full bg-white rounded-3xl ring-2 ring-zinc-900/10 p-8">
             @if($errors->has('throttle'))
                 <div class="mb-4 p-4 text-xs sm:text-sm text-red-700 bg-red-500/15 rounded-lg">
@@ -197,13 +199,13 @@
         </main>
 
         @if($conversions->count())
-        <div class=" w-fit mt-6">
+        <div class="w-fit mt-6">
             <h2 class="text-lg font-bold text-zinc-800 mb-4">تاریخچه تبدیل‌ها</h2>
             <div class="bg-white rounded-3xl ring-2 ring-zinc-900/10 p-6 space-y-3">
                 @foreach($conversions as $conversion)
                 <div class="flex items-center justify-between px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl hover:bg-zinc-100 transition-colors">
-                    <div class="flex flex-col items-start gap-2">
-                        <p class="text-sm font-semibold text-zinc-700 truncate w-full max-w-4/5">{{ $conversion->font_names }}</p>
+                    <div class="flex flex-col items-start gap-2 truncate w-full max-w-4/5">
+                        <p class="text-sm font-semibold text-zinc-700 truncate w-11/12">{{ $conversion->font_names }}</p>
                         <p class="text-xs text-zinc-400">{{ $conversion->file_count }} فونت &bull; {{ $conversion->created_at->diffForHumans() }}</p>
                     </div>
                     <a href="{{ route('converter.download', $conversion) }}" class="flex items-center p-2.5 bg-zinc-900 hover:bg-zinc-800 rounded-[10px] transition-colors">
@@ -226,6 +228,17 @@
             </div>
         </div>
         @endif
+
+        <footer class="mt-auto pt-10 pb-4 w-full max-w-3xl text-center">
+            <div class="border-t border-zinc-200 pt-6 flex items-center gap-2 justify-center">
+                <a target="_blank" href="https://github.com/chaveamin/tcpdf-font" class="text-xs text-zinc-600">GitHub</a>
+                <span class="text-zinc-800">&bull;</span>
+                <p class="text-xs text-zinc-600">
+                    تبدیل فونت‌های TTF به فرمت سازگار با
+                    <a target="_blank" href="https://github.com/tecnickcom/TCPDF">TCPDF</a>
+                </p>
+            </div>
+        </footer>
 
         <script>
             // ── Tabs ──
