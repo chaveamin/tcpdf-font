@@ -1,3 +1,5 @@
+[![PHP](https://img.shields.io/badge/php-%23777BB4.svg?&logo=php&logoColor=white)](#) [![Laravel](https://img.shields.io/badge/Laravel-%23FF2D20.svg?logo=laravel&logoColor=white)](#) [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-%2338B2AC.svg?logo=tailwind-css&logoColor=white)](#) [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=fff)](#)
+
 ## تبدیل فونت به فرمت `ctg.z - php - z` در کتابخانه [tcpdf](https://tcpdf.org/)
 
 به منظور سهولت در شخصی سازی فونت فاکتور های PDF در [WHMCS](https://www.whmcs.com/) برای صاحبان هاستینگ و توسعه دهندگان
